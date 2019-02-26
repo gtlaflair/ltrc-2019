@@ -18,7 +18,7 @@ EVENTBRITE_PATTERN = r'\d{9,10}'
 URL_PATTERN = r'https?://.+'
 
 # Defaults.
-CARPENTRIES = ("dc", "swc", "lc", "cp")
+CARPENTRIES = ("dc", "swc")
 DEFAULT_CONTACT_EMAIL = 'admin@software-carpentry.org'
 
 USAGE = 'Usage: "workshop_check.py path/to/root/directory"'
@@ -91,7 +91,7 @@ def check_layout(layout):
 
 @look_for_fixme
 def check_carpentry(layout):
-    '''"carpentry" in YAML header must be "dc", "swc", "lc", or "cp".'''
+    '''"carpentry" in YAML header must be "dc" or "swc".'''
 
     return layout in CARPENTRIES
 
@@ -117,7 +117,7 @@ def check_humandate(date):
     and 4-digit year.  Examples include 'Feb 18-20, 2025' and 'Feb 18
     and 20, 2025'.  It may be in languages other than English, but the
     month name should be kept short to aid formatting of the main
-    Carpentries web site.
+    Software Carpentry web site.
     """
 
     if ',' not in date:
@@ -390,7 +390,7 @@ def check_config(reporter, filename):
                    kind)
 
     carpentry = config.get('carpentry', None)
-    reporter.check(carpentry in ('swc', 'dc', 'lc', 'cp'),
+    reporter.check(carpentry in ('swc', 'dc'),
                    filename,
                    'Missing or unknown carpentry: {0}',
                    carpentry)
@@ -404,7 +404,7 @@ def main():
         sys.exit(1)
 
     root_dir = sys.argv[1]
-    index_file = os.path.join(root_dir, 'index.md')
+    index_file = os.path.join(root_dir, 'index.html')
     config_file = os.path.join(root_dir, '_config.yml')
 
     reporter = Reporter()

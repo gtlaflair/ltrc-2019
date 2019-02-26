@@ -2,11 +2,11 @@ generate_md_episodes <- function() {
 
   library("methods")
   
-  if (!require("remotes", quietly = TRUE)) {
-    install.packages("remotes", repos = c(CRAN = "https://cloud.r-project.org/"))
+  if (!require("remotes")) {
+    stop("The `remotes` package is needed.")
   }
 
-  if (!require("requirements", quietly = TRUE)) {
+  if (!require("requirements")) {
     remotes::install_github("hadley/requirements")
   }
 

@@ -1,0 +1,535 @@
+---
+title: "Part 1: Introducing dplyr and tidyr"
+teaching: 40
+exercises: 25
+questions:
+  - "How can I select specific rows and/or columns from a data frame?"
+  - "How can I combine multiple commands into a single command?"
+  - "How can create new columns or remove existing columns from a data frame?"
+  - "How can I reformat a dataframe to meet my needs?"
+objectives:
+- "Describe the purpose of the **`dplyr`** and **`tidyr`** packages."
+- "Select certain columns in a data frame with the **`dplyr`** function `select`."
+- "Select certain rows in a data frame according to filtering conditions with the **`dplyr`** function `filter`."
+- "Link the output of one **`dplyr`** function to the input of another function with the 'pipe' operator `%>%`."
+- "Add new columns to a data frame that are functions of existing columns with `mutate`."
+- "Use the split-apply-combine concept for data analysis."
+- "Use `summarize`, `group_by`, and `count` to split a data frame into groups of observations, apply a summary statistics for each group, and then combine the results."
+- "Describe the concept of a wide and a long table format and for which purpose those formats are useful."
+- "Describe what key-value pairs are."
+- "Reshape a data frame from long to wide format and back with the `spread` and `gather` commands from the **`tidyr`** package."
+- "Export a data frame to a csv file."
+keypoints:
+  - "Use the `dplyr` package to manipulate dataframes."
+  - "Use `select()` to choose variables from a dataframe."
+  - "Use `filter()` to choose data based on values."
+  - "Use `group_by()` and `summarize()` to work with subsets of data."
+  - "Use `mutate()` to create new variables."
+  - "Use the `tidyr` package to change the layout of dataframes."
+  - "Use `gather()` to go from wide to long format."
+  - "Use `spread()` to go from long to wide format."
+---
+
+
+```{r, include=FALSE}
+source("../bin/chunk-options.R")
+knitr_fig_path("03-")
+source("../bin/download_data.R")
+```
+
+# Data Manipulation using **`dplyr`** and **`tidyr`**
+
+**`dplyr`** is a package for making tabular data manipulation easier by using a
+limited set of functions that can be combined to extract and summarize insights from your data. It pairs nicely with **`tidyr`** which enables you to
+swiftly convert between different data formats (long vs. wide) for plotting and analysis.
+
+Similarly to **`readr`**, **`dplyr`** and **`tidyr`** are also part of the tidyverse. These packages were loaded in R's memory when we called `library(tidyverse)` earlier.
+
+## What are **`dplyr`** and **`tidyr`**?
+
+The package **`dplyr`** provides easy tools for the most common data
+manipulation tasks. It is built to work directly with data frames, with many
+common tasks optimized by being written in a compiled language (C++). An
+additional feature is the ability to work directly with data stored in an
+external database. The benefits of doing this are that the data can be managed
+natively in a relational database, queries can be conducted on that database,
+and only the results of the query are returned.
+
+This addresses a common problem with R in that all operations are conducted
+in-memory and thus the amount of data you can work with is limited by available
+memory. The database connections essentially remove that limitation in that you
+can connect to a database of many hundreds of GB, conduct queries on it
+directly, and pull back into R only what you need for analysis.
+
+The package **`tidyr`** addresses the common problem of wanting to reshape your data for plotting and use by different R functions. Sometimes we want data sets where we have one row per measurement. Sometimes we want a data frame where each measurement type has its own column, and rows are instead more aggregated groups. Moving back and forth between these formats is nontrivial, and **`tidyr`** gives you tools for this and more sophisticated  data manipulation.
+
+To learn more about **`dplyr`** and **`tidyr`** after the workshop, you may want to check out this
+[handy data transformation with **`dplyr`** cheatsheet](https://github.com/rstudio/cheatsheets/raw/master/data-transformation.pdf) and this [one about **`tidyr`**](https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf).
+
+To make sure, everyone will use the same dataset for this lesson, we'll read again the SAFI dataset that we downloaded earlier.
+
+```{r, results = 'hide', purl = FALSE, message=FALSE}
+
+## load the tidyverse
+library(tidyverse)
+
+test_results_1 <- read_csv("data/placement_1.csv") %>%
+  mutate(country = as.factor(country)) # changes the country variable to a factor
+
+## inspect the data
+test_results_1
+
+## preview the data
+# View(interviews)
+
+## summarize the data
+# summary(test_results_1)
+# skimr::skim(test_results_1)
+```
+
+We're going to learn some of the most common **`dplyr`** functions:
+
+- `select()`: subset columns
+- `filter()`: subset rows on conditions
+- `mutate()`: create new columns by using information from other columns
+- `group_by()` and `summarize()`: create summary statistics on grouped data
+- `arrange()`: sort results
+- `count()`: count discrete values
+
+## Creating new variables
+
+### Mutate
+
+Frequently you'll want to create new columns based on the values in existing
+columns, for example to scale test scores or to create total scores. 
+For this we'll use `mutate()`.
+
+We currently have a dataframe with information for each test taker about country 
+of origin and how they responded (correct or incorrect) to each of the items on 
+the test. We are missing total score columns. We know from inspecting our dataframe
+that our items are in columns `5:74`. The `.` in front of the column indices is a 
+placeholder for the dataframe `test_results_1`. It is similar to the command
+`test_results[,5:74]`.
+
+
+```{r, purl = FALSE}
+test_results_1 <- test_results_1 %>% 
+  mutate(raw_total = rowSums(.[5:74]))
+
+# print the vector
+test_results_1$raw_total
+```
+
+Often, we want to report scores that have been scaled in some way, such as percents.
+Now that we have a `raw_total` column, we can create a column called `percent_total`.
+
+
+```{r, purl = FALSE}
+test_results_1 <- test_results_1 %>% 
+  mutate(percent_total = (raw_total / 70) * 100)
+
+# print the vector
+test_results_1$percent_total
+```
+
+
+## Selecting columns and filtering rows
+
+To select columns of a
+data frame, use `select()`. The first argument to this function is the data
+frame (`test_results_1`), and the subsequent arguments are the columns to keep.
+
+```{r, results = 'hide', purl = FALSE}
+select(test_results_1, country, raw_total)
+```
+
+To choose rows based on a specific criteria, use `filter()`:
+
+```{r, purl = FALSE}
+filter(test_results_1, country == "china")
+```
+
+
+The `!` symbol negates the result; we can use that to filter out all
+test takers from China.
+
+```{r, purl = FALSE}
+filter(test_results_1, country != 'china')
+```
+
+We can also select columns based on their names or on partial matches to their names.
+If we wanted only the listening test items:
+
+```{r, purl = FALSE}
+select(test_results_1, contains("_list_"))
+```
+
+
+## Pipes
+
+What if you want to select and filter at the same time? There are three
+ways to do this: use intermediate steps, nested functions, or pipes.
+
+With intermediate steps, you create a temporary data frame and use
+that as input to the next function, like this:
+
+```{r, purl = FALSE}
+test_results_china <- filter(test_results_1, country != 'china')
+totals <- select(test_results_china, raw_total)
+```
+
+This is readable, but can clutter up your workspace with lots of objects that you have to name individually. With multiple steps, that can be hard to keep track of.
+
+
+*Pipes* are a recent addition to R. Pipes let you take the
+output of one function and send it directly to the next, which is useful when
+you need to do many things to the same dataset. Pipes in R look like `%>%` and
+are made available via the **`magrittr`** package, installed automatically with
+**`dplyr`**. If you use RStudio, you can type the pipe with <kbd>Ctrl</kbd>
++ <kbd>Shift</kbd> + <kbd>M</kbd> if you have a PC or <kbd>Cmd</kbd> +
+<kbd>Shift</kbd> + <kbd>M</kbd> if you have a Mac.
+
+```{r, purl = FALSE}
+test_results_1 %>%
+    filter(country == "china") %>%
+    select(country, raw_total)
+```
+
+In the above code, we use the pipe to send the `test_results_1` dataset first
+through `filter()` to keep rows where `country` is "china", then through
+`select()` to keep only the `country` and `raw_total` columns. Since `%>%`
+takes the object on its left and passes it as the first argument to the function
+on its right, we don't need to explicitly include the data frame as an argument
+to the `filter()` and `select()` functions any more.
+
+Some may find it helpful to read the pipe like the word "then". For instance,
+in the above example, we take the data frame `test_results_1`, *then* we `filter`
+for rows with `country == "china"`, *then* we `select` columns `country` and `raw_total`. 
+The **`dplyr`** functions by themselves are somewhat simple,
+but by combining them into linear workflows with the pipe, we can accomplish
+more complex manipulations of data frames.
+
+If we want to create a new object with this smaller version of the data, we
+can assign it a new name:
+
+```{r, purl = FALSE}
+test_results_china <- test_results_1 %>%
+    filter(country == "china") %>%
+    select(country, raw_total)
+
+test_results_china
+```
+
+Note that the final data frame (`test_results_china`) is the leftmost part of this expression.
+
+> ## Exercise
+>
+> Using pipes, subset the `test_results_1` data to include raw_totals
+> for test takers from morocco. Then select the `country` and `percent_total` columns.
+>
+> > ## Solution
+> >
+> > ```{r}
+> > test_results_morocco <- test_results_1 %>%
+> >   filter(country == "morocco") %>%
+> >   select(country, percent_total)
+> >
+> > test_results_morocco
+> > ```
+> {: .solution}
+{: .challenge}
+
+You can also filter numerical data using other logical operators (such as `>`, `<=`). 
+For example, if you wanted data from test takers who scored above a certain score.
+
+```{r, purl = FALSE}
+test_results_70 <- test_results_1 %>%
+    filter(percent_total >= 70) %>%
+    select(country, percent_total)
+
+test_results_70
+```
+
+
+We can use `mutate` to create total scores for the listening and reading tests.
+
+```{r, purl = FALSE}
+test_results_1 <- test_results_1 %>% 
+  mutate(list_raw_total = rowSums(select(., contains("_list_")))) 
+
+test_results_1$list_raw_total
+```
+
+
+> ## Exercise
+>
+> Using pipes, create a `read_raw_total` column in our dataframe. Then `select` all of the columns
+> that contain raw scores.
+>
+> > ## Solution
+> >
+> > ```{r}
+> > test_results_1 <- test_results_1 %>% 
+> >  mutate(read_raw_total = rowSums(select(., contains("_read_")))) 
+> > 
+> > test_results_1 %>%
+> >  select(., contains("raw"))
+> > ```
+> {: .solution}
+{: .challenge}
+
+### Split-apply-combine data analysis and the summarize() function
+
+Many data analysis tasks can be approached using the *split-apply-combine*
+paradigm: split the data into groups, apply some analysis to each group, and
+then combine the results. **`dplyr`** makes this very easy through the use of
+the `group_by()` function.
+
+
+#### The `summarize()` function
+
+`group_by()` is often used together with `summarize()`, which collapses each
+group into a single-row summary of that group.  `group_by()` takes as arguments
+the column names that contain the **categorical** variables for which you want
+to calculate the summary statistics. So to compute the average raw test score by country
+of origin:
+
+```{r, purl = FALSE}
+test_results_1 %>%
+    group_by(country) %>%
+    summarize(mean = mean(raw_total))
+```
+
+You may also have noticed that the output from these calls doesn't run off the
+screen anymore. It's one of the advantages of `tbl_df` over data frame.
+
+Once the data are grouped, you can create multiple summary statistics at a time.
+For example, we may want an indicator of dispersion in addition to central tendancy:
+
+```{r, purl = FALSE}
+test_results_1 %>%
+    group_by(country) %>%
+    summarize(mean = mean(raw_total),
+              sd = sd(raw_total), 
+              min = min(raw_total),
+              max = max(raw_total))
+```
+
+It is sometimes useful to rearrange the result of a query to inspect the values. For instance, we can sort on `min` to put the group with the lowest minimum score first.
+
+
+```{r, purl = FALSE}
+test_results_1 %>%
+    group_by(country) %>%
+    summarize(mean = mean(raw_total),
+              sd = sd(raw_total), 
+              min = min(raw_total),
+              max = max(raw_total)) %>%
+  arrange(min)
+```
+
+To sort in descending order, we need to add the `desc()` function. If we want to sort the results by decreasing order of minimum household size:
+
+```{r, purl = FALSE}
+test_results_1 %>%
+    group_by(country) %>%
+    summarize(mean = mean(raw_total),
+              sd = sd(raw_total), 
+              min = min(raw_total),
+              max = max(raw_total)) %>%
+  arrange(desc(min))
+```
+
+#### Counting
+
+When working with data, we often want to know the number of observations found
+for each factor or combination of factors. For this task, **`dplyr`** provides
+`count()`. For example, if we wanted to count the number of rows of data for
+each country of origin, we would do:
+
+```{r, purl = FALSE}
+test_results_1 %>%
+    count(country)
+```
+
+For convenience, `count()` provides the `sort` argument to get results from most to least:
+
+```{r, purl = FALSE}
+test_results_1 %>%
+    count(country, sort = TRUE)
+```
+
+Within the `summarise` function we can use `group_by` and `n()`:
+
+```{r, purl = FALSE}
+test_results_1 %>%
+  group_by(country) %>%
+  summarise(n = n())
+```
+
+> ## Exercise
+>
+> 1. What are the `n`, `mean`, `median`, `sd`, and range (hint: range = (`max` - `min`) + 1) of the
+> `percent_total` scores?
+>
+> > ## Solution
+> >
+> > ```{r}
+> > test_results_1 %>%
+> >    summarise(n = n(),
+> >              mean = mean(percent_total),
+> >              median = median(percent_total),
+> >              sd = sd(percent_total),
+> >              range = (max(percent_total) - min(percent_total)) + 1)
+> > ```
+> {: .solution}
+>
+> 2. Use `group_by()` to calculate the same summary statistics for test takers
+> by country of origin.
+>
+> > ## Solution
+> >
+> > ```{r}
+> > test_results_1 %>%
+> >    group_by(country) %>%
+> >    summarise(n = n(),
+> >              mean = mean(percent_total),
+> >              median = median(percent_total),
+> >              sd = sd(percent_total),
+> >              range = (max(percent_total) - min(percent_total)) + 1)
+> > ```
+> {: .solution}
+{: .challenge}
+
+## Reshaping with gather and spread
+
+So far, we have been working with "tidy" data (see Hadley Wickhams Tidy Data
+manuscript for more information <https://vita.had.co.nz/papers/tidy-data.pdf>).
+Four characteristics of a tidy dataset include the following:
+
+1. Each variable has its own column
+2. Each observation has its own row
+3. Each value must have its own cell
+4. Each type of observational unit forms a table
+
+Here we examine the fourth rule: Each type of observational unit forms a table.
+
+In `test_results_1`, each row contains the values of variables associated with each
+record (the unit), values such as correct or incorrect responses and total and part scores. 
+What if instead of comparing records, we wanted to look at differences in test takers grouped by 
+different countries of origin or across different subtests (i.e., listening and reading)?
+
+We'd need to create a new table where each row (the unit) is comprised
+of values of variables associated with each country of origin (e.g. for
+`country`). In practical terms this means the values of the countries of 
+origin in `country` would become the names of column variables and the cells 
+would contain `TRUE` or `FALSE`.
+
+Having created a new table, we can now explore the relationship within and
+between countries of origin. The key point here is that we are still following 
+a tidy data structure, but we have **reshaped** the data according to the observations 
+of interest.
+
+The opposite transformation would be to transform column names into values of
+a variable.
+
+We can do both these of transformations with two `tidyr` functions, `spread()`
+and `gather()`.
+
+#### Gathering
+
+In this situation we are gathering the column names and turning them into a pair
+of new variables. One variable represents the column names as values, and the
+other variable contains the values previously associated with the column names.
+We will do this in two steps to make this process a bit clearer.
+
+`gather()` takes four principal arguments:
+
+1. the data
+2. the *key* column variable we wish to create from column names.
+3. the *value* column variable we wish to create and fill with values
+associated with the key.
+4. the names of the columns we use to fill the key variable (or to drop).
+
+```{r, purl=FALSE}
+test_results_1_long <- test_results_1 %>%
+  select(ID, country, raw_total, percent_total, list_raw_total, read_raw_total) %>%
+  gather(key, value, -ID, -country)
+
+test_results_1_long
+```
+
+#### Spreading
+
+`spread()` takes three principal arguments:
+
+1. the data
+2. the *key* column variable whose values will become new column names.
+3. the *value* column variable whose values will fill the new column variables.
+
+Further arguments include `fill` which, if set, fills in missing values with
+the value provided.
+
+We can return our long dataframe back into a wide dataframe with `spread`.
+
+```{r, purl=FALSE}
+results_wide <- test_results_1_long %>%
+  spread(key, value)
+```
+
+### Joining data
+
+Sometimes it is necessary to separate pieces of our data, perform operations on them
+and then join them back together with the original dataframe. For today, we will work 
+with `full_join` from `dplyr`. Our goal is to calculate the raw total scores for the
+reading and listening anchor sets in our data. We will leverage the `select` and 
+`rowSums` commands again:
+
+```{r, purl=FALSE}
+list_1_an <- test_results_1 %>%
+  select(., ID, contains("_list_"))%>%
+  select(., ID, contains("_an")) %>%
+  mutate(., list_an_raw = rowSums(.[2:10])) %>%
+  select(ID, list_an_raw)
+```
+
+We can use `full_join` to add `list_an_raw` back to the original dataframe. This command
+takes three arguments. `x` and `y` are the tables to join. `by` is character vector:
+
+```{r, purl=FALSE}
+test_results_1 <- full_join(x = test_results_1, y = list_1_an, by = 'ID')
+```
+
+
+> ## Exercise
+>
+> Do the same operations as above to create a `read_an_raw` variable. Add it to the original dataframe. Then create
+> an new dataframe called `test_1_raw` that contains the `ID` and `country` variables and all columns with raw totals. 
+> (hint: there are a different number of items in the reading anchor test than in the listening anchor test.)
+>
+> > ## Solution
+> >
+> > ```{r}
+> > read_1_an <- test_results_1 %>%
+> >   select(., ID, contains("_read_"))%>%
+> >   select(., ID, contains("_an")) %>%
+> >   mutate(., read_an_raw = rowSums(.[2:12])) %>%
+> >   select(ID, read_an_raw)
+> > 
+> > test_results_1 <- full_join(test_results_1, read_1_an, by = 'ID') 
+> >
+> > test_1_raw <- select(test_results_1, ID, country, contains("raw"))
+> >
+> > test_1_raw
+> > ```
+> {: .solution}
+{: .challenge}
+
+Now we can save this data frame to our `data_output` directory.
+
+```{r, purl=FALSE, eval=FALSE}
+write_csv(test_1_raw, path = "data_output/test_1_raw_totals.csv")
+```
+
+
+{% include links.md %}
