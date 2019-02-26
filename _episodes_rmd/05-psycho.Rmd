@@ -1,0 +1,216 @@
+---
+title: "Part 2: CTT and CRT Test and Item Analysis"
+teaching: 60
+exercises: 35
+questions:
+  - "How do I conduct basic CTT/CRT item analyses?"
+  - "How do I investigate the reliability/dependability of a test?"
+  - "How do I extract indices of interest for reporting and analysis"
+objectives:
+   - "Conduct classical test theory item analysis using `CTT`."
+   - "Evaluate the reliability of a test under the CTT framework using `psych`."
+   - "Use `rcrtan` to carry out criterion-referenced test and item analyses."
+   - "Use functions from `dplyr` and `tidyr` to carry out analyses on results"
+keypoints:
+   - "`psych` and `CTT` are two packages that facilitate classical test theory analysis."
+   - "`rcrtan` facilitates criterion-referenced test and item analyses."
+   - "`dplyr` and `tidy` can be used to analyze the output of psychometric analysis."
+---
+
+```{r, include=FALSE}
+source("../bin/chunk-options.R")
+knitr_fig_path("04-")
+source("../bin/download_data.R")
+```
+
+We start by loading the required packages.
+
+```{r load-package, message=FALSE, purl=FALSE}
+library(tidyverse)
+library(psych)
+library(CTT)
+library(rcrtan)
+```
+
+If not still in the workspace, load the data we saved in the previous lesson.
+
+
+```{r load-data, purl=FALSE}
+test_results_1 <- read_csv('data/placement_1.csv') %>%
+  mutate(country = as.factor(country)) # changes the country variable to a factor
+```
+
+## Preparing the data
+
+Our skills with `dplyr` and `tidyr` will be useful for prepping the data for analysis.
+Two of the three test analysis packages we are working require only item-level data (`psych` and `CTT`).
+The third (`rcrtan`) sometimes requires a column of total test scores in addition to item-level
+data.
+
+Let's prep the data for the former two packages first.
+
+```{r, purl=FALSE, warning=FALSE}
+place_ctt <- test_results_1 %>%
+  select(., (q1_list_mi:q70_read_det_an))
+```
+
+## Classical test theory analysis
+
+Now that we have the items, we are ready to carry out some analyses. We will start with a CTT analysis
+using the `psych` package. First let's take a look at what arguments our function requires. The three 
+we are most concerned with are `x`, `keys`, and `delete`
+
+- `x`: A data.frame or matrix of data, or a covariance or correlation matrix
+- `keys`: If some items are to be reversed keyed, then either specify the direction of all items or just 
+a vector of which items to reverse. 
+- `delete`: Delete items with no variance and issue a warning
+
+```{r, eval=FALSE, purl=FALSE}
+?psych::alpha
+```
+
+
+```{r, purl=FALSE, warning=FALSE}
+ctt_res <- psych::alpha(place_ctt, delete = FALSE) # we want to retain the items even if the indices cannot be estimated
+```
+
+The output of `psych::alpha` is a list. A list is a data structure that conatains the same or different 
+types of objects. In the case of this output, the objects are different. Running `str(ctt_res)` or `glimpse(ctt_res)`
+shows that there are three dataframes of different dimensions and 11 vectors of differing data types. Let's take a peek into
+the first three dataframes: `total`, `alpha.drop`, and `item.stats`.
+
+
+> ## Exercise
+>
+> With the person next to you, take a look at the help documentation for the 
+> `alpha` command (hint: `?`). Read over the items listed under Value (this is
+> what is returned by the command).
+>
+> - How would you access information about the reliability of the test?
+> Which object would you extract?
+> 
+> > ## Solution
+> >
+> > ```{r reliability}
+> > # 1. 
+> > ctt_res$total
+> > # or 2.
+> > ctt_res[['total']]
+> > ```
+> {: .solution}
+>
+> - How would you find information about the item difficulty and discrimination
+> parameters? Which object would you extract?
+>
+> > ## Solution
+> > ```{r item-stats}
+> > # 1. 
+> > head(ctt_res$item.stats) # print the first six rows
+> > # or 2.
+> > head(ctt_res[['item.stats']]) # print the first six rows
+> > ```
+> {: .solution}
+>
+> - How would you find information about what the reliability of the test would
+> if the items were removed from the test? Which object would you extract?
+>
+> > ## Solution
+> > ```{r item-drop}
+> > # 1. 
+> > head(ctt_res$alpha.drop) # print the first six rows
+> > # or 2. 
+> > head(ctt_res[['alpha.drop']]) # print the first six rows
+> > ```
+> {: .solution}
+{: .challenge}
+
+Sometimes we want to do further analyses of the item-level data (i.e., summary of subtests or objectives). In order to do this
+with the output from `psych::alpha`, we need to massage the dataframe. We can read the `separate` function below as "separate
+the `question_info` column into `question`, `skill`, `objective`, and `anchor`; separate at `_`; do not remove the original 
+column; if any of the four new columns have missing data, fill the rightmost column with `NA`".
+
+```{r, purl=FALSE}
+ctt_items <- ctt_res[['item.stats']] %>%
+  rownames_to_column(var = 'question_info') %>% # makes the rownames a variable in the dataframe
+  separate(question_info, into = c('question', 'skill', 'objective', 'anchor_status'), sep = "_", remove = FALSE, fill = 'right') %>%
+  select((question_info:n), r.drop, mean) %>%# select the columns of interest
+  rename('discrimination' = r.drop, 'difficulty' = mean) %>% # rename the columns
+  as_tibble(.) # so it prints responsibly
+
+ctt_items
+```
+
+One analysis we might be interested in is how the item indices differ across the two subskills (we will need our
+handy `dplyr` and `tidyr` skills):
+
+```{r, purl=FALSE}
+# with wide data
+
+skill_summary_wide <- ctt_items %>%
+  select(skill, difficulty, discrimination) %>%
+  group_by(skill) %>%
+  summarise(n = n(),
+            'Mean p' = mean(difficulty),
+            'SD p' = sd(difficulty),
+            'Mean d' = mean(discrimination),
+            'SD d' = sd(discrimination)) %>%
+  mutate_if(is.double, round, 2) # conditionally rounds all columns that are doubles to the nearest hundredth
+
+# with long data
+skill_summary_long <- ctt_items %>%
+  select(skill, difficulty, discrimination) %>%
+  gather(key = 'index', value, -skill) %>%
+  group_by(skill, index) %>%
+  summarise(n = n(),
+            Mean = mean(value),
+            SD = sd(value)) %>%
+  mutate_if(is.double, round, 2)
+
+# note: the kableExtra package provides a nice set of tools for creating nested tables
+# for HTML and PDF documents (interesting for the results with the long data)
+```
+
+> ## Exercise
+>
+> Carry out the same type of summary analysis grouped by skill and objective.
+> 
+> > ## Solution
+> >
+> > ```{r objs}
+> > obj_summary <- ctt_items %>%
+> >   select(skill, objective, difficulty, discrimination) %>%
+> >   group_by(skill, objective) %>%
+> >   summarise(n = n(),
+> >             'Mean p' = mean(difficulty),
+> >             'SD p' = sd(difficulty),
+> >             'Mean d' = mean(discrimination),
+> >             'SD d' = sd(discrimination)) %>%
+> >   mutate_if(is.double, round, 2)
+> >
+> > obj_summary
+> > ```
+> {: .solution}
+>
+> - How would you do this analysis by skill on only the anchor data? (hint: `filter`)
+>
+> > ## Solution
+> > ```{r anchors}
+> > an_summary <- ctt_items %>%
+> >   filter(anchor_status == 'an') %>%
+> >   select(skill, difficulty, discrimination) %>%
+> >   group_by(skill) %>%
+> >   summarise(n = n(),
+> >             'Mean p' = mean(difficulty),
+> >             'SD p' = sd(difficulty),
+> >             'Mean d' = mean(discrimination),
+> >             'SD d' = sd(discrimination)) %>%
+> >   mutate_if(is.double, round, 2)
+> >
+> > an_summary
+> > ```
+> {: .solution}
+{: .challenge}
+
+## Criterion-referenced test analysis
+
+{% include links.md %}
