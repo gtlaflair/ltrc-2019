@@ -30,7 +30,7 @@ field of assessment (e.g., classical test theory, criterion-referenced test
 > **These lessons assume no prior knowledge of the skills or tools.**
 >
 > To get started, follow the directions in the "[Setup](setup.html)" tab to
-> download data to your computer and follow any installation instructions.
+> install R and RStudio.
 >
 > #### Prerequisites
 >
