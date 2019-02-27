@@ -7,14 +7,13 @@ exercises: 35
 questions:
   - "How do I conduct basic CTT/CRT item analyses?"
   - "How do I investigate the reliability/dependability of a test?"
-  - "How do I extract indices of interest for reporting and analysis"
+  - "How do I extract indices of interest for reporting and analysis?"
 objectives:
-   - "Conduct classical test theory item analysis using `CTT`."
-   - "Evaluate the reliability of a test under the CTT framework using `psych`."
+   - "Conduct classical test theory item and test analysis using `psych`."
    - "Use `rcrtan` to carry out criterion-referenced test and item analyses."
-   - "Use functions from `dplyr` and `tidyr` to carry out analyses on results"
+   - "Use functions from `dplyr` and `tidyr` to carry out analyses on results."
 keypoints:
-   - "`psych` and `CTT` are two packages that facilitate classical test theory analysis."
+   - "`psych` are two packages that facilitate classical test theory analysis."
    - "`rcrtan` facilitates criterion-referenced test and item analyses."
    - "`dplyr` and `tidy` can be used to analyze the output of psychometric analysis."
 ---
@@ -419,5 +418,113 @@ skill_summary_long <- ctt_items %>%
 {: .challenge}
 
 ## Criterion-referenced test analysis
+
+In criterion-referenced test theory, the focus of the analysis is the dependability of 
+classifications (e.g., master v. non-master) when evaluating the whole test and the
+extent to which item indices "agree" with whole test decisions.
+
+To evaluate the dependability of classifications, there is a function in the `rcrtan` package
+called `subkoviak`. It implements Subkoviak's single administration kappa and agreement coefficients.
+It requires three arguments:
+
+- `data`: A dataframe of dichotomously scored items
+- `items`: The column indices that can be used to locate the items in the dataframe
+- `raw_cut_score`: The raw cut-score of the test.
+
+We will use the `placement_1.csv` dataset for this analysis. The function returns three indices 
+(`z`, `z_rounded`, `KR_est`) that were used to look up the agreement (`agree_coef.r_*`) and 
+kappa (`kappa_coef.r_*`) coefficients.
+
+
+~~~
+depend <- subkoviak(test_results_1, items = 5:74, raw_cut_score = 49) # cut-score = 70%
+
+depend
+~~~
+{: .language-r}
+
+
+
+~~~
+     z z_rounded    KR_est agree_coef.r_0.9 kappa_coef.r_0.9
+1 0.59       0.6 0.8970782             0.88              0.7
+~~~
+{: .output}
+
+
+There are also functions for carrying out CRT item analyses. The omnibus function that will return results
+for a number of these analyses is `crt_iteman`. This takes similar arguments as `subkoviak` with one difference
+being that the cut-score can be in raw or percent form.
+
+
+~~~
+crt_res <- crt_iteman(test_results_1, items = 5:74, cut_score = 49, scale = 'raw') # cut-score = 70%
+
+crt_res
+~~~
+{: .language-r}
+
+
+
+~~~
+# A tibble: 70 x 7
+   items       if_pass if_fail if_total b_index agree   phi
+   <chr>         <dbl>   <dbl>    <dbl>   <dbl> <dbl> <dbl>
+ 1 q1_list_mi    0.692   0.581    0.614   0.112 0.500 0.105
+ 2 q2_list_det   0.885   0.661    0.727   0.223 0.500 0.229
+ 3 q3_list_det   0.769   0.468    0.557   0.301 0.602 0.277
+ 4 q4_list_det   1       0.581    0.705   0.419 0.591 0.419
+ 5 q5_list_det   0.731   0.274    0.409   0.457 0.727 0.424
+ 6 q6_list_det   1       0.774    0.841   0.226 0.455 0.282
+ 7 q7_list_det   1       0.581    0.705   0.419 0.591 0.419
+ 8 q8_list_det   0.885   0.629    0.705   0.256 0.523 0.256
+ 9 q9_list_det   0.962   0.758    0.818   0.203 0.455 0.241
+10 q10_list_mi   0.923   0.710    0.773   0.213 0.477 0.232
+# … with 60 more rows
+~~~
+{: .output}
+
+
+> ## Exercise
+>
+> Carry out a summary analysis of the item indices `if_total`, `b_index`, `agree`, and `phi`.
+> 
+> > ## Solution
+> >
+> > 
+> > ~~~
+> > crt_summary <- crt_res %>%
+> > separate(items, into = c('question', 'skill', 'objective', 'anchor_status'), sep = "_", remove = FALSE, fill = 'right') %>%
+> >   select(skill, if_total, b_index, agree, phi) %>%
+> >   gather(key = index, value, -skill) %>%
+> >   group_by(skill, index) %>%
+> >   summarise(n = n(),
+> >             'Mean' = mean(value),
+> >             'SD' = sd(value)) %>%
+> >   mutate_if(is.double, round, 2)
+> > 
+> > crt_summary
+> > ~~~
+> > {: .language-r}
+> > 
+> > 
+> > 
+> > ~~~
+> > # A tibble: 8 x 5
+> > # Groups:   skill [2]
+> >   skill index        n  Mean    SD
+> >   <chr> <chr>    <int> <dbl> <dbl>
+> > 1 list  agree       35 0.570  0.1 
+> > 2 list  b_index     35 0.27   0.15
+> > 3 list  if_total    35 0.6    0.17
+> > 4 list  phi         35 0.27   0.14
+> > 5 read  agree       35 0.56   0.12
+> > 6 read  b_index     35 0.24   0.13
+> > 7 read  if_total    35 0.6    0.22
+> > 8 read  phi         35 0.25   0.12
+> > ~~~
+> > {: .output}
+> {: .solution}
+{: .challenge}
 
 {% include links.md %}

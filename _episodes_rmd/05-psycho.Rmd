@@ -5,14 +5,13 @@ exercises: 35
 questions:
   - "How do I conduct basic CTT/CRT item analyses?"
   - "How do I investigate the reliability/dependability of a test?"
-  - "How do I extract indices of interest for reporting and analysis"
+  - "How do I extract indices of interest for reporting and analysis?"
 objectives:
-   - "Conduct classical test theory item analysis using `CTT`."
-   - "Evaluate the reliability of a test under the CTT framework using `psych`."
+   - "Conduct classical test theory item and test analysis using `psych`."
    - "Use `rcrtan` to carry out criterion-referenced test and item analyses."
-   - "Use functions from `dplyr` and `tidyr` to carry out analyses on results"
+   - "Use functions from `dplyr` and `tidyr` to carry out analyses on results."
 keypoints:
-   - "`psych` and `CTT` are two packages that facilitate classical test theory analysis."
+   - "`psych` are two packages that facilitate classical test theory analysis."
    - "`rcrtan` facilitates criterion-referenced test and item analyses."
    - "`dplyr` and `tidy` can be used to analyze the output of psychometric analysis."
 ---
@@ -212,5 +211,61 @@ skill_summary_long <- ctt_items %>%
 {: .challenge}
 
 ## Criterion-referenced test analysis
+
+In criterion-referenced test theory, the focus of the analysis is the dependability of 
+classifications (e.g., master v. non-master) when evaluating the whole test and the
+extent to which item indices "agree" with whole test decisions.
+
+To evaluate the dependability of classifications, there is a function in the `rcrtan` package
+called `subkoviak`. It implements Subkoviak's single administration kappa and agreement coefficients.
+It requires three arguments:
+
+- `data`: A dataframe of dichotomously scored items
+- `items`: The column indices that can be used to locate the items in the dataframe
+- `raw_cut_score`: The raw cut-score of the test.
+
+We will use the `placement_1.csv` dataset for this analysis. The function returns three indices 
+(`z`, `z_rounded`, `KR_est`) that were used to look up the agreement (`agree_coef.r_*`) and 
+kappa (`kappa_coef.r_*`) coefficients.
+
+```{r, purl=FALSE}
+depend <- subkoviak(test_results_1, items = 5:74, raw_cut_score = 49) # cut-score = 70%
+
+depend
+```
+
+
+There are also functions for carrying out CRT item analyses. The omnibus function that will return results
+for a number of these analyses is `crt_iteman`. This takes similar arguments as `subkoviak` with one difference
+being that the cut-score can be in raw or percent form.
+
+```{r, purl=FALSE}
+crt_res <- crt_iteman(test_results_1, items = 5:74, cut_score = 49, scale = 'raw') # cut-score = 70%
+
+crt_res
+```
+
+
+> ## Exercise
+>
+> Carry out a summary analysis of the item indices `if_total`, `b_index`, `agree`, and `phi`.
+> 
+> > ## Solution
+> >
+> > ```{r crt-challenge}
+> > crt_summary <- crt_res %>%
+> > separate(items, into = c('question', 'skill', 'objective', 'anchor_status'), sep = "_", remove = FALSE, fill = 'right') %>%
+> >   select(skill, if_total, b_index, agree, phi) %>%
+> >   gather(key = index, value, -skill) %>%
+> >   group_by(skill, index) %>%
+> >   summarise(n = n(),
+> >             'Mean' = mean(value),
+> >             'SD' = sd(value)) %>%
+> >   mutate_if(is.double, round, 2)
+> >
+> > crt_summary
+> > ```
+> {: .solution}
+{: .challenge}
 
 {% include links.md %}

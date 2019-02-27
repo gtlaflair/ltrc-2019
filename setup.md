@@ -93,5 +93,4 @@ your operating system, and then follow the instructions to install
 **After installing R and RStudio, you need to install the `tidyverse` package.**
 
 * After starting RStudio, at the console type:
-  `install.packages(c("tidyverse"))`
-
+  `install.packages(c("tidyverse", "rcrtan", "CTT", "psych", "rmarkdown", "tinytex", "eRm", "lme4", "lavaan", "knitr", "devtools", "equate"))`

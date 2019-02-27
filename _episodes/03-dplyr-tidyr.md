@@ -114,7 +114,7 @@ placeholder for the dataframe `test_results_1`. It is similar to the command
 
 ~~~
 test_results_1 <- test_results_1 %>% 
-  mutate(raw_total = rowSums(.[5:74]))
+  mutate(raw_total = rowSums(.[5:74], na.rm = TRUE))
 
 # print the vector
 test_results_1$raw_total
@@ -216,7 +216,7 @@ filter(test_results_1, country == "china")
 #   q37_read_det <dbl>, q38_read_det <dbl>, q39_read_mi <dbl>,
 #   q40_read_voc <dbl>, q41_read_voc <dbl>, q42_read_mi <dbl>,
 #   q43_read_det <dbl>, q44_read_mi <dbl>, q45_read_det <dbl>,
-#   q46_read_mi <dbl>, q47_read_trog <dbl>, q48_read_det <dbl>,
+#   q46_read_mi <dbl>, q47_read_torg <dbl>, q48_read_det <dbl>,
 #   q49_read_det <dbl>, q50_read_voc <dbl>, q51_read_torg <dbl>,
 #   q52_read_inf <dbl>, q53_read_torg <dbl>, q54_read_det <dbl>,
 #   q55_read_torg <dbl>, q56_read_purp <dbl>, q57_read_purp <dbl>,
@@ -269,7 +269,7 @@ filter(test_results_1, country != 'china')
 #   q37_read_det <dbl>, q38_read_det <dbl>, q39_read_mi <dbl>,
 #   q40_read_voc <dbl>, q41_read_voc <dbl>, q42_read_mi <dbl>,
 #   q43_read_det <dbl>, q44_read_mi <dbl>, q45_read_det <dbl>,
-#   q46_read_mi <dbl>, q47_read_trog <dbl>, q48_read_det <dbl>,
+#   q46_read_mi <dbl>, q47_read_torg <dbl>, q48_read_det <dbl>,
 #   q49_read_det <dbl>, q50_read_voc <dbl>, q51_read_torg <dbl>,
 #   q52_read_inf <dbl>, q53_read_torg <dbl>, q54_read_det <dbl>,
 #   q55_read_torg <dbl>, q56_read_purp <dbl>, q57_read_purp <dbl>,
@@ -511,7 +511,7 @@ We can use `mutate` to create total scores for the listening and reading tests.
 
 ~~~
 test_results_1 <- test_results_1 %>% 
-  mutate(list_raw_total = rowSums(select(., contains("_list_")))) 
+  mutate(list_raw_total = rowSums(select(., contains("_list_")), na.rm = TRUE)) 
 
 test_results_1$list_raw_total
 ~~~
@@ -538,7 +538,7 @@ test_results_1$list_raw_total
 > > 
 > > ~~~
 > > test_results_1 <- test_results_1 %>% 
-> >  mutate(read_raw_total = rowSums(select(., contains("_read_")))) 
+> >  mutate(read_raw_total = rowSums(select(., contains("_read_")), na.rm = TRUE)) 
 > > 
 > > test_results_1 %>%
 > >  select(., contains("raw"))
@@ -927,7 +927,7 @@ reading and listening anchor sets in our data. We will leverage the `select` and
 list_1_an <- test_results_1 %>%
   select(., ID, contains("_list_"))%>%
   select(., ID, contains("_an")) %>%
-  mutate(., list_an_raw = rowSums(.[2:10])) %>%
+  mutate(., list_an_raw = rowSums(.[2:10], na.rm = TRUE)) %>%
   select(ID, list_an_raw)
 ~~~
 {: .language-r}
@@ -955,7 +955,7 @@ test_results_1 <- full_join(x = test_results_1, y = list_1_an, by = 'ID')
 > > read_1_an <- test_results_1 %>%
 > >   select(., ID, contains("_read_"))%>%
 > >   select(., ID, contains("_an")) %>%
-> >   mutate(., read_an_raw = rowSums(.[2:12])) %>%
+> >   mutate(., read_an_raw = rowSums(.[2:12], na.rm = TRUE)) %>%
 > >   select(ID, read_an_raw)
 > > 
 > > test_results_1 <- full_join(test_results_1, read_1_an, by = 'ID') 
