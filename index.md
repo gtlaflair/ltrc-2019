@@ -39,7 +39,7 @@ field of assessment (e.g., classical test theory, criterion-referenced test
 > everything *before* working through this lesson.
 {: .prereq}
 
-> ## For Instructors
+> ## For Workshop Leaders
 > If you are teaching this lesson in a workshop, please see the
 > [Instructor notes](guide/).
 {: .prereq}
