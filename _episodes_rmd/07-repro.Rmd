@@ -46,7 +46,14 @@ Rmarkdown documents have a third component beyond code and prose: yaml. Yaml sta
 In order to generate individual score reports for test takers, we need an R script (.R file) that has reads in the data and does some summarizing prior to the reporting. We also need a .Rmd file that serves as a template for the score reports. Doing the calucations in the R script makes it so these calculations are done once and then used in the reporting code, rather than done for each student (which would happen if they were in the .Rmd). Both can be downloaded using the `download.file` command below. Or you can copy and pase the R code below into an .R file.
 
 ```{r, purl=FALSE, eval=FALSE}
+download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/_episodes_rmd/documents/score-report-template.Rmd",
+              "documents/score-report-template.Rmd", mode = "wb")
 
+```
+
+```{r, purl=FALSE, eval=FALSE}
+download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/_episodes_rmd/scripts/score-reporter.R",
+              "scripts/score-reporter.R", mode = "wb")
 ```
 
 ```{r, purl=FALSE, eval=FALSE}

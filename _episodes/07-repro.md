@@ -19,7 +19,7 @@ keypoints:
 The purpose of this part of the workshop is to illustrate how R and RStudio can be leveraged to create a reproducible pipeline for analysis and reporting. Some of the parts in this section move beyond analysis. We will spend just enough time with them to grasp the basics.
 
 There are quite a few R packages that have been created to promote reproducible research. Some of these packages are tools for
-accessing databases, some are tools for managing projects, and others are tools for creating reproducible reports. A couple of groups, RStudio and ROpenSci, and people affiliated (officially and unofficially) with them have led the way in this. Today, the main packages that we will be using to learn about this are `knitr`, `rmarkdown`, and `tinytex`. `knitr` is an ["engine for dynamic report generation with R"](https://yihui.name/knitr/), `rmarkdown` is a ["file format for making dynamic documents with R"](https://rmarkdown.rstudio.com/articles_intro.html), and `tinytex` is a subset of $\LaTeX$ [packages from a larger distribution](https://yihui.name/tinytex/). This last package we will use first and only once to install the $\LaTeX$ distribution on your computer. It makes creating PDF documents easier.
+accessing databases, some are tools for managing projects, and others are tools for creating reproducible reports. A couple of groups, RStudio and ROpenSci, and people affiliated (officially and unofficially) with them have led the way in this. Today, the main packages that we will be using to learn about this are `knitr`, `rmarkdown`, `tinytex`, and `xaringan`. `knitr` is an ["engine for dynamic report generation with R"](https://yihui.name/knitr/), `rmarkdown` is a ["file format for making dynamic documents with R"](https://rmarkdown.rstudio.com/articles_intro.html), and `tinytex` is a subset of $\LaTeX$ [packages from a larger distribution](https://yihui.name/tinytex/). This last package we will use first and only once to install the $\LaTeX$ distribution on your computer. It makes creating PDF documents easier.
 
 
 ~~~
@@ -33,8 +33,72 @@ We will interact with `knitr` primarily through the button in RStudio and throug
 
 ![](../fig/knitr-button.png)
 
-You can think of an rmarkdown file, or an .Rmd, file in the same way you think of a .docx file. A place to do writing. Writing in a .Rmd file differs in that  you can include R code in your writing, and you do not do heavy formatting in the file. Below is an example of R chunks (in grey) embedded in prose (we saw this code and this prose in the lesson on data visualization). The "chunks" start with ` ```{r}` and end with ` ``` `. This is like a mini-environment for R code. The chunks can be named, and there are parameters that can be set globally across chunks or specifically for one chunk such as `fig.width` to control the width of figures and `echo` to indicate the printing of code with results or not.
-
+You can think of an rmarkdown file, or an .Rmd, file in the same way you think of a .docx file. A place to do writing. Writing in a .Rmd file differs in that  you can include R code in your writing, and you do not do heavy formatting in the file. Below is an example of R chunks (in grey) embedded in prose (we saw this code and this prose in the lesson on data visualization). The "chunks" start with backticks followed by {r} and they end in three backticks. The chunks can be named, and there are parameters that can be set globally across chunks or specifically for one chunk such as `fig.width` to control the width of figures and `echo` to indicate the printing of code with results or not. The gray area is like a mini-environment for R code. You can write and run R code inside of it. When you click the "knit" button, it will compile a document for you that knits together your prose and the ouputs of your analyses.                                                                                                                       
+           
 ![](../fig/r-chunk.png)
+
+## Score reports
+
+Rmarkdown documents have a third component beyond code and prose: yaml. Yaml stands for _Yaml ain't a markup language_. It is found at the top of the document sandwiched between `---` at the top and `---` at the bottom. This can be used to set parameters for the document and add information such as the title, data, and author (depending on the type of document you are making). You can start a .Rmd through the File menu in Rstudio:
+
+![](../fig/start-rmd.png)
+
+In order to generate individual score reports for test takers, we need an R script (.R file) that has reads in the data and does some summarizing prior to the reporting. We also need a .Rmd file that serves as a template for the score reports. Doing the calucations in the R script makes it so these calculations are done once and then used in the reporting code, rather than done for each student (which would happen if they were in the .Rmd). Both can be downloaded using the `download.file` command below. Or you can copy and pase the R code below into an .R file.
+
+
+~~~
+download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/_episodes_rmd/documents/score-report-template.Rmd",
+              "documents/score-report-template.Rmd", mode = "wb")
+~~~
+{: .language-r}
+
+
+~~~
+download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/_episodes_rmd/scripts/score-reporter.R",
+              "scripts/score-reporter.R", mode = "wb")
+~~~
+{: .language-r}
+
+
+~~~
+#load packages
+library(tidyverse)
+library(rmarkdown)
+library(knitr)
+
+#load data
+test_results_2 <- here::here('data/placement_2.csv') %>%
+  read_csv(.)
+
+#compute total and part scores
+test_results_2 <- test_results_2 %>%
+  mutate(total = rowSums(.[5:69], na.rm = TRUE),
+         list_total = rowSums(select(., contains('_list_')), na.rm = TRUE),
+         read_total = rowSums(select(., contains('_read_')), na.rm = TRUE))
+
+#compute mean, save these values
+total_mean <- mean(test_results_2$total, na.rm = TRUE)
+list_mean <- mean(test_results_2$list_total, na.rm = TRUE)
+read_mean <- mean(test_results_2$read_total, na.rm = TRUE)
+
+
+# select a subset so that we do not waste time making 100 score reports today
+test_results_rep <- slice(test_results_2, 1:5)
+
+for (i in unique(test_results_rep$ID)){
+  student <- test_results_rep %>% filter(ID == i)
+  doc_path <- here::here('documents/')
+  here::here('documents/score-report-template.Rmd') %>%
+  rmarkdown::render(., output_file = paste0(doc_path, 'Score_Report_', as.character(student$names),'.pdf'))
+}
+~~~
+{: .language-r}
+
+## Presentations
+
+There are quite a few frameworks for creating presentations in R (ioslides, Rpres, beamer). One of the more developed and supported (with documentation and in the user community) is [xaringan](https://github.com/yihui/xaringan). This package is hosted on GitHub rather than the official R repository, CRAN. You can install the package by copying or typing the `devtools::install_github('yihue/xaringan')`. An easy way to start building a presentation using this platform is also through the dropdown menu. However, instead of selecting an option from the Document group, you will select "From Template" then "Ninja Presentation".
+
+![](../fig/from-template.png)
+
 
 {% include links.md %}
