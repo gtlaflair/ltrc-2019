@@ -145,14 +145,59 @@ list_ca_see$se
 plot(list_ca_see, out = 'se')
 ```
 
-
-We can compare methods as well:
+Usually, in carrying out a full equating study, multiple equating relationships are estimated and compared. Below is a demonstration of how this can be done in a few lines of code.
 
 ```{r}
-# list_nw <- equate(listen_1_freq, listen_2_freq, type = 'equipercentile', 
-#                    lowp = c(0, 0), highp = c(35, 30), smoothmethod = 'loglinear', degrees = 2)
-# 
-# list_nw_see <- bootstrap(list_nw, reps = 100)
+
+neat_args <- list(identity = list(type = "identity"),
+                  mean_tuck = list(type = "mean", method = "tucker"),
+                  mean_nomi = list(type = "mean", method = "nominal weights"),
+                  line_tuck = list(type = "linear", method = "tucker"),
+                  line_chai = list(type = "linear", method = "chained"),
+                  circ_tuck = list(type = "circle-arc", method = "tucker"),
+                  circ_chai = list(type = "circle-arc", method = "chained", chainmidp = "linear"))
+
+comp_meth <- bootstrap(x = listen_1_freq, y = listen_2_freq, reps = 100, args = neat_args)
+
+plot(comp_meth, out = "se", addident = FALSE, legendplace = 'top')
+
+round(summary(comp_meth), 2)
+```
+
+```{r, fig.width=12}
+# using ggplot and dplyr/tidyr
+
+fiver <- comp_meth$se %>%
+  as_tibble() %>%
+  select(-identity) %>%
+  mutate(score = 0:35) %>%
+  slice(seq(1, 36, by = 5)) %>%
+  gather(key = method, value, -score)
+
+comp_plot <- comp_meth$se %>%
+  as_tibble() %>%
+  select(-identity) %>%
+  mutate(score = 0:35) %>%
+  gather(key = method, value, -score) %>%
+  ggplot(., aes(x = score, y = value, colour = method, shape = method)) +
+  geom_point(data = fiver, aes(size = value), show.legend = FALSE) +
+  geom_line() +
+  theme_gray(base_size = 18) +
+  scale_colour_viridis_d() +
+  scale_x_continuous(breaks = c(0, 5, 10, 15, 20, 25, 30, 35), limits = c(0, 35)) +
+  theme(panel.grid.minor = element_blank())
+
+comp_plot
+
+comp_table <- comp_meth$se %>%
+  as_tibble() %>%
+  summarise_all(., 'mean') %>%
+  mutate_all(., 'round', 2)
+
+comp_table
 
 ```
+
+
+
 {% include links.md %}

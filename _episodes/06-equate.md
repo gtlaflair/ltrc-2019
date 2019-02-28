@@ -248,14 +248,14 @@ list_ca_see$se
 
 
 ~~~
- [1] 3.619375e-15 9.405008e-02 1.793878e-01 2.567717e-01 3.268428e-01
- [6] 3.901457e-01 4.471445e-01 4.982362e-01 5.437599e-01 5.840057e-01
-[11] 6.192205e-01 6.496134e-01 6.753596e-01 6.966042e-01 7.134643e-01
-[16] 7.260312e-01 7.343724e-01 7.385320e-01 7.385320e-01 7.343724e-01
-[21] 7.260312e-01 7.134643e-01 6.966042e-01 6.753596e-01 6.496134e-01
-[26] 6.192205e-01 5.840057e-01 5.437599e-01 4.982362e-01 4.471445e-01
-[31] 3.901457e-01 3.268428e-01 2.567717e-01 1.793878e-01 9.405008e-02
-[36] 3.623775e-15
+ [1] 3.032078e-15 9.378146e-02 1.787888e-01 2.558095e-01 3.255047e-01
+ [6] 3.884330e-01 4.450688e-01 4.958158e-01 5.410184e-01 5.809700e-01
+[11] 6.159200e-01 6.460791e-01 6.716237e-01 6.926995e-01 7.094242e-01
+[16] 7.218894e-01 7.301627e-01 7.342883e-01 7.342883e-01 7.301627e-01
+[21] 7.218894e-01 7.094242e-01 6.926995e-01 6.716237e-01 6.460791e-01
+[26] 6.159200e-01 5.809700e-01 5.410184e-01 4.958158e-01 4.450688e-01
+[31] 3.884330e-01 3.255047e-01 2.558095e-01 1.787888e-01 9.378146e-02
+[36] 3.092240e-15
 ~~~
 {: .output}
 
@@ -268,15 +268,95 @@ plot(list_ca_see, out = 'se')
 
 <img src="../fig/rmd-04-unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" width="612" style="display: block; margin: auto;" />
 
-
-We can compare methods as well:
+Usually, in carrying out a full equating study, multiple equating relationships are estimated and compared. Below is a demonstration of how this can be done in a few lines of code.
 
 
 ~~~
-# list_nw <- equate(listen_1_freq, listen_2_freq, type = 'equipercentile', 
-#                    lowp = c(0, 0), highp = c(35, 30), smoothmethod = 'loglinear', degrees = 2)
-# 
-# list_nw_see <- bootstrap(list_nw, reps = 100)
+neat_args <- list(identity = list(type = "identity"),
+                  mean_tuck = list(type = "mean", method = "tucker"),
+                  mean_nomi = list(type = "mean", method = "nominal weights"),
+                  line_tuck = list(type = "linear", method = "tucker"),
+                  line_chai = list(type = "linear", method = "chained"),
+                  circ_tuck = list(type = "circle-arc", method = "tucker"),
+                  circ_chai = list(type = "circle-arc", method = "chained", chainmidp = "linear"))
+
+comp_meth <- bootstrap(x = listen_1_freq, y = listen_2_freq, reps = 100, args = neat_args)
+
+plot(comp_meth, out = "se", addident = FALSE, legendplace = 'top')
 ~~~
 {: .language-r}
+
+<img src="../fig/rmd-04-unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" width="612" style="display: block; margin: auto;" />
+
+~~~
+round(summary(comp_meth), 2)
+~~~
+{: .language-r}
+
+
+
+~~~
+            se se_w
+identity  0.00 0.00
+mean_tuck 0.46 0.46
+mean_nomi 0.55 0.55
+line_tuck 0.77 0.56
+line_chai 0.84 0.61
+circ_tuck 0.35 0.42
+circ_chai 0.36 0.42
+~~~
+{: .output}
+
+
+~~~
+# using ggplot and dplyr/tidyr
+
+fiver <- comp_meth$se %>%
+  as_tibble() %>%
+  select(-identity) %>%
+  mutate(score = 0:35) %>%
+  slice(seq(1, 36, by = 5)) %>%
+  gather(key = method, value, -score)
+
+comp_plot <- comp_meth$se %>%
+  as_tibble() %>%
+  select(-identity) %>%
+  mutate(score = 0:35) %>%
+  gather(key = method, value, -score) %>%
+  ggplot(., aes(x = score, y = value, colour = method, shape = method)) +
+  geom_point(data = fiver, aes(size = value), show.legend = FALSE) +
+  geom_line() +
+  theme_gray(base_size = 18) +
+  scale_colour_viridis_d() +
+  scale_x_continuous(breaks = c(0, 5, 10, 15, 20, 25, 30, 35), limits = c(0, 35)) +
+  theme(panel.grid.minor = element_blank())
+
+comp_plot
+~~~
+{: .language-r}
+
+<img src="../fig/rmd-04-unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" width="864" style="display: block; margin: auto;" />
+
+~~~
+comp_table <- comp_meth$se %>%
+  as_tibble() %>%
+  summarise_all(., 'mean') %>%
+  mutate_all(., 'round', 2)
+
+comp_table
+~~~
+{: .language-r}
+
+
+
+~~~
+# A tibble: 1 x 7
+  identity mean_tuck mean_nomi line_tuck line_chai circ_tuck circ_chai
+     <dbl>     <dbl>     <dbl>     <dbl>     <dbl>     <dbl>     <dbl>
+1        0      0.46      0.55      0.73      0.79      0.32      0.32
+~~~
+{: .output}
+
+
+
 {% include links.md %}
