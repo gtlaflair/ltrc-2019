@@ -17,7 +17,7 @@ keypoints:
 
 ```{r, include=FALSE}
 source("../bin/chunk-options.R")
-knitr_fig_path("04-")
+knitr_fig_path("06-")
 source("../bin/download_data.R")
 ```
 
@@ -50,6 +50,8 @@ test_2_raw <- test_results_2 %>%
   mutate(list_an_raw = rowSums(select(., matches("q\\d+_list_\\w{2,4}_an")), na.rm = TRUE)) %>% # ugly regex for summing listening anchor items
   mutate(read_an_raw = rowSums(select(., matches("q\\d+_read_\\w{2,4}_an")), na.rm = TRUE)) %>%
   select(ID, contains('raw'))
+
+# write_csv(test_2_raw, 'data_output/test_2_raw_totals.csv')
 ```
 
 ## Preparing the data

@@ -51,6 +51,8 @@ test_2_raw <- test_results_2 %>%
   mutate(list_an_raw = rowSums(select(., matches("q\\d+_list_\\w{2,4}_an")), na.rm = TRUE)) %>% # ugly regex for summing listening anchor items
   mutate(read_an_raw = rowSums(select(., matches("q\\d+_read_\\w{2,4}_an")), na.rm = TRUE)) %>%
   select(ID, contains('raw'))
+
+# write_csv(test_2_raw, 'data_output/test_2_raw_totals.csv')
 ~~~
 {: .language-r}
 
@@ -248,14 +250,14 @@ list_ca_see$se
 
 
 ~~~
- [1] 3.032078e-15 9.378146e-02 1.787888e-01 2.558095e-01 3.255047e-01
- [6] 3.884330e-01 4.450688e-01 4.958158e-01 5.410184e-01 5.809700e-01
-[11] 6.159200e-01 6.460791e-01 6.716237e-01 6.926995e-01 7.094242e-01
-[16] 7.218894e-01 7.301627e-01 7.342883e-01 7.342883e-01 7.301627e-01
-[21] 7.218894e-01 7.094242e-01 6.926995e-01 6.716237e-01 6.460791e-01
-[26] 6.159200e-01 5.809700e-01 5.410184e-01 4.958158e-01 4.450688e-01
-[31] 3.884330e-01 3.255047e-01 2.558095e-01 1.787888e-01 9.378146e-02
-[36] 3.092240e-15
+ [1] 3.657220e-15 1.001322e-01 1.909599e-01 2.733005e-01 3.478435e-01
+ [6] 4.151737e-01 4.757893e-01 5.301156e-01 5.785160e-01 6.213010e-01
+[11] 6.587346e-01 6.910403e-01 7.184054e-01 7.409848e-01 7.589036e-01
+[16] 7.722594e-01 7.811239e-01 7.855445e-01 7.855445e-01 7.811239e-01
+[21] 7.722594e-01 7.589036e-01 7.409848e-01 7.184054e-01 6.910403e-01
+[26] 6.587346e-01 6.213010e-01 5.785160e-01 5.301156e-01 4.757893e-01
+[31] 4.151737e-01 3.478435e-01 2.733005e-01 1.909599e-01 1.001322e-01
+[36] 3.658788e-15
 ~~~
 {: .output}
 
@@ -266,7 +268,7 @@ plot(list_ca_see, out = 'se')
 ~~~
 {: .language-r}
 
-<img src="../fig/rmd-04-unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" width="612" style="display: block; margin: auto;" />
+<img src="../fig/rmd-06-unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" width="612" style="display: block; margin: auto;" />
 
 Usually, in carrying out a full equating study, multiple equating relationships are estimated and compared. Below is a demonstration of how this can be done in a few lines of code.
 
@@ -286,7 +288,7 @@ plot(comp_meth, out = "se", addident = FALSE, legendplace = 'top')
 ~~~
 {: .language-r}
 
-<img src="../fig/rmd-04-unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" width="612" style="display: block; margin: auto;" />
+<img src="../fig/rmd-06-unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" width="612" style="display: block; margin: auto;" />
 
 ~~~
 round(summary(comp_meth), 2)
@@ -298,12 +300,12 @@ round(summary(comp_meth), 2)
 ~~~
             se se_w
 identity  0.00 0.00
-mean_tuck 0.46 0.46
-mean_nomi 0.55 0.55
-line_tuck 0.77 0.56
-line_chai 0.84 0.61
-circ_tuck 0.35 0.42
-circ_chai 0.36 0.42
+mean_tuck 0.43 0.43
+mean_nomi 0.52 0.52
+line_tuck 0.75 0.53
+line_chai 0.83 0.59
+circ_tuck 0.33 0.40
+circ_chai 0.34 0.41
 ~~~
 {: .output}
 
@@ -335,7 +337,7 @@ comp_plot
 ~~~
 {: .language-r}
 
-<img src="../fig/rmd-04-unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" width="864" style="display: block; margin: auto;" />
+<img src="../fig/rmd-06-unnamed-chunk-7-1.png" title="plot of chunk unnamed-chunk-7" alt="plot of chunk unnamed-chunk-7" width="864" style="display: block; margin: auto;" />
 
 ~~~
 comp_table <- comp_meth$se %>%
@@ -353,7 +355,7 @@ comp_table
 # A tibble: 1 x 7
   identity mean_tuck mean_nomi line_tuck line_chai circ_tuck circ_chai
      <dbl>     <dbl>     <dbl>     <dbl>     <dbl>     <dbl>     <dbl>
-1        0      0.46      0.55      0.73      0.79      0.32      0.32
+1        0      0.43      0.52      0.71      0.78       0.3      0.31
 ~~~
 {: .output}
 
