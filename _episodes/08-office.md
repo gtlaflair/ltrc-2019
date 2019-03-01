@@ -5,7 +5,7 @@ title: "Part 4: Office Hours"
 teaching: 60
 exercises: 35
 questions:
-   - "Can I apply anything I've learned todat to new data?"
+   - "Can I apply anything I've learned today to new data?"
 objectives:
    - "Compute a total score for the ADT."
    - "Describe the distribution of total scores."
@@ -26,12 +26,14 @@ keypoints:
 
 ### Describe, Analyze, and Report Scores for Test Data
 
-Data: Isbell (2017). The data come from a 10-item embedded academic definitions test. 
+Data: Isbell (2017). The data come from a 10-item embedded academic definitions test.
+
+Use this data or your own to try some of the objectives above.
 
 
 ~~~
-# download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/data/placement_2.csv",
-#               "data/adt_dataset.csv", mode = "wb")
+download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/data/adt_dataset.csv",
+              "data/adt_dataset.csv", mode = "wb")
 ~~~
 {: .language-r}
 

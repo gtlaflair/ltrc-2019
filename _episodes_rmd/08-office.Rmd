@@ -32,9 +32,9 @@ Data: Isbell (2017). The data come from a 10-item embedded academic definitions 
 
 Use this data or your own to try some of the objectives above.
 
-```{r, purl=FALSE}
-# download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/data/placement_2.csv",
-#               "data/adt_dataset.csv", mode = "wb")
+```{r, purl=FALSE, eval=FALSE}
+download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/data/adt_dataset.csv",
+              "data/adt_dataset.csv", mode = "wb")
 ```
 
 {% include links.md %}
