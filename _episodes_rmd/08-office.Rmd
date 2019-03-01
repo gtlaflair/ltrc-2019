@@ -1,0 +1,40 @@
+---
+title: "Part 4: Office Hours"
+teaching: 60
+exercises: 35
+questions:
+   - "Can I apply anything I've learned today to new data?"
+objectives:
+   - "Compute a total score for the ADT."
+   - "Describe the distribution of total scores."
+   - "Visualize the distribution of total scores."
+   - "Examine the relationship between ADT and Reading scores."
+   - "Visualize the relationship between ADT and Reading Scores."
+   - "Conduct CTT reliability and item analyses for the ADT."
+   - "Conduct CRT dependability and item analyses for the ADT."
+   - "Generate individual PDF score reports."
+   - "Generate a presentation or report."
+keypoints:
+   - "Yes! You can apply this stuff to new data!"
+---
+
+```{r, include=FALSE}
+source("../bin/chunk-options.R")
+knitr_fig_path("08-")
+source("../bin/download_data.R")
+```
+
+## Our Data
+
+### Describe, Analyze, and Report Scores for Test Data
+
+Data: Isbell (2017). The data come from a 10-item embedded academic definitions test.
+
+Use this data or your own to try some of the objectives above.
+
+```{r, purl=FALSE}
+# download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/data/placement_2.csv",
+#               "data/adt_dataset.csv", mode = "wb")
+```
+
+{% include links.md %}
