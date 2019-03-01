@@ -1,0 +1,134 @@
+---
+title             : "The title"
+shorttitle        : "Title"
+
+author: 
+  - name          : "Geoff LaFlair"
+    affiliation   : "1"
+    corresponding : yes    # Define only one corresponding author
+    address       : "Postal address"
+    email         : "my@email.com"
+  - name          : "Daniel Isbel"
+    affiliation   : "1,2"
+
+affiliation:
+  - id            : "1"
+    institution   : "Duolingo"
+  - id            : "2"
+    institution   : "Michigan State University"
+
+authornote: |
+  Add complete departmental affiliations for each author here. Each new line herein must be indented, like this line.
+
+  Enter author note here.
+
+abstract: |
+  One or two sentences providing a **basic introduction** to the field,  comprehensible to a scientist in any discipline.
+  
+  Two to three sentences of **more detailed background**, comprehensible  to scientists in related disciplines.
+  
+  One sentence clearly stating the **general problem** being addressed by  this particular study.
+  
+  One sentence summarizing the main result (with the words "**here we show**" or their equivalent).
+  
+  Two or three sentences explaining what the **main result** reveals in direct comparison to what was thought to be the case previously, or how the  main result adds to previous knowledge.
+  
+  One or two sentences to put the results into a more **general context**.
+  
+  Two or three sentences to provide a **broader perspective**, readily comprehensible to a scientist in any discipline.
+  
+  <!-- https://tinyurl.com/ybremelq -->
+  
+keywords          : "keywords"
+wordcount         : "X"
+floatsintext      : no
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+linenumbers       : yes
+mask              : no
+draft             : no
+
+documentclass     : "apa6"
+classoption       : "man"
+output            : papaja::apa6_pdf
+---
+
+```{r setup, include = FALSE}
+library("papaja")
+```
+
+```{r include=FALSE}
+#load packages
+library(tidyverse)
+library(lavaan)
+library(semPlot)
+library(knitr)
+
+#read data
+d <- here::here("data/placement_2.csv") %>%
+  read_csv()
+
+#compute subscores
+d <- gather(d, item, correct, 5:69)
+d <- separate(d, item, into = c("number", "skill", "type"), sep = "_", remove = F)
+
+sum_scores <- group_by(d, ID, skill, type) %>% 
+  summarise(total = sum(correct, na.rm = T)) %>%
+  unite(skill_type, 2:3, sep = "_") %>%
+  spread(skill_type, total)
+
+#some of the subscores are a bit limited in number of questions. combine
+sum_scores <- mutate(sum_scores, list_global = list_mi + list_prag,
+                        read_global = read_mi + read_inf + read_purp)
+```
+
+#Examining the Internal Structure of the Placement Test
+With a Rmarkdown report, you can type out as much prose as you'd like. In fact, some people have written whole books using Rmarkdown! We won't go that far today, but let's try a little...
+
+The Placement Test was designed to measure the receptive English language abilities of college-bound ESL students. The test has two sections, Listening and Reading, for which separate scores are reported. Each section is composed of several different item types that represent key subtasks of Listening and Reading skills. Descriptive statistics for subscores are shown below:
+
+```{r echo=FALSE, results='asis'}
+sums <- sum_scores %>% 
+  select(ID, list_det, list_global, list_inf, read_det,
+         read_voc, read_global, read_torg) %>%
+  gather(type, subscore, 2:8) %>% 
+  group_by(type) %>%
+  summarise(Mean = mean(subscore),
+            SD = sd(subscore),
+            Median = median(subscore),
+            Min = min(subscore),
+            Max = max(subscore)) %>%
+  as.data.frame()
+
+apa_table(sums)
+```
+
+While theory suggests that the scores from the Listening and Reading sections reflect much of the same underlying linguistic knowledge and competence, we also expect that the two skills should be distinguishable.
+
+To examine the degree to which the Placement Test Scores distinguish separate Listening and Reading abilities, we conducted a confirmatory factor analysis study using the [lavaan](http://lavaan.ugent.be/) package in *R*. Specifically, we compared a 1-factor model where all subtask scores loaded onto a single factor and a 2-factor model where listening and reading subtasks load onto distinct but correlated factors. We compared model fit and the examined the divergent validity of the 2-factor solution: According to Brown (2015), factors correlated at greater than 0.85 have poor divergent validity.
+
+#Confirmatory Factor Analyses
+##1-factor Model
+```{r echo=FALSE}
+#1-factor model
+## define the model
+One <- '
+# latent variable definitions
+language =~ list_det + list_global + list_inf + read_det + read_voc +
+            read_torg + read_global'
+
+##fit the model
+fitOne <- cfa(One, data = sum_scores, missing = "fiml")
+```
+
+The 1-factor model consists of a single factor with seven indicator variables. All indicators have unique error disturbances. The model is over-identified with `r fitMeasures(fitOne, "df")` degrees of freedom and `r fitMeasures(fitOne, "npar")` freely-estimated parameters.
+
+The figure below is a graphical representation of the model that contains parameter estimates.
+
+```{r echo=FALSE}
+semPaths(fitOne, "std", layout = "tree", intercepts = F, residuals = T, nDigits = 2, 
+         label.cex = 1, edge.label.cex=.95, fade = F)
+```
+
+

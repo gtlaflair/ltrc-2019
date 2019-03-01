@@ -37,4 +37,13 @@ download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/da
 ~~~
 {: .language-r}
 
+You can download our answers here.
+
+
+~~~
+download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/scripts/day-1-problem-set-solution.R",
+              "scripts/day-1-problem-set-solution.R", mode = "wb")
+~~~
+{: .language-r}
+
 {% include links.md %}

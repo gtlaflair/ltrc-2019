@@ -1,0 +1,258 @@
+---
+title: "Part 5: Item Respose Modeling"
+teaching: 60
+exercises: 35
+questions:
+  - "Can I do item response modeling in R?"
+objectives:
+  - "Carry out Rasch item response modeling"
+  - "Carry out linear logistic item response modeling"
+  - "Estimate and extract person and item parameters from both model types"
+  - "Estimate and extract person and item fit parameters from both model types"
+  - "Compare models"
+keypoints:
+  - "You can do item response modeling in R!"
+source: Rmd
+---
+
+```{r, include=FALSE}
+source("../bin/chunk-options.R")
+knitr_fig_path("09-")
+source("../bin/download_data.R")
+```
+
+In this part, we will use the `eRm` package to do some person ability and item difficulty estimation under the Rasch and linear logistic model. Again, we will be leveraging our data munging skills that we have been practicing in the previous parts. 
+
+The data for this part comes from an EAP/ESP vocabulary, listening, and reading test. The test has five testlets, which can be identified in the variable names:
+
+- `ling`: a vocabulary test
+- `cont`: a listening, reading, and vocabulary test with business contracts as the topic
+- `empd`: a listening, reading, and vocabulary test with employment discrimination laws as the topic
+- `ethc`: a listening, reading, and vocabulary test with business ethics as the topic
+- `tort`: a listening, reading, and vocabulary test with tort law as the topic
+
+The objectives can also be identified in the variable names:
+
+- `voc`: vocabulary (discrete item in the `ling` testlet; embedded in the others)
+- `mi`: main idea question about the testlets reading or listening passage
+- `det`: detail question about the testlets reading or listening passage
+- `ci`: a question that required the test takers to connect information between the reading and listening passages
+
+We will start by reading in the data
+```{r, purl=FALSE, message=FALSE, warning=FALSE, error=FALSE, comment=FALSE}
+#load packages
+library(tidyverse)
+library(eRm)
+library(psych)
+
+
+#load data
+irt_dat <- read_csv("data/integrated.csv")
+
+irt_dat <- irt_dat %>%
+  mutate(id = rep(1:length(.[1])))
+
+```
+
+> ## Exercise
+> 
+> Create a new dataframe that contains only the items.
+>
+> > ## Solution
+> >
+> > ```{r, results=FALSE}
+> > ## Select items
+> > ## 1.
+> > irt_items <- select(irt_dat, 5:44)
+> >
+> > ## 2.
+> > irt_items <- select(irt_dat, (voc_1_ling_voc:tort_8_rl_ci))
+> > ```
+> {: .solution}
+{: .challenge}
+
+## Rasch Model
+
+Estimating the parameters is pretty straighforward once you have data prepared.
+
+```{r}
+# Rasch Model using eRm (cumulative maximum likelihood estimation)
+# Step 1: Estimate item parameters
+erm_rasch <- RM(irt_items)
+
+# running summary shows us the estimated item parameters and measures of uncertainty
+summary(erm_rasch)
+```
+
+Now we can estimate the person parameters:
+
+```{r, purl=FALSE}
+# Step 2
+
+# Estimate person parameters
+rasch_pers_params <- person.parameter(erm_rasch)
+
+# Extracts the person ability estimates in logits
+rasch_pers_ability <- coef(rasch_pers_params) 
+head(rasch_pers_ability)
+```
+
+> ## Exercise
+> 
+> Explore the object `rasch_pers_params`. Can out extract them withou
+> `coef`? (hint: `$`)
+>
+> > ## Solution
+> >
+> > ```{r, results=FALSE}
+> > # 1.
+> > head(rasch_pers_params$theta.table$`Person Parameter`)
+> > 
+> > # 2.
+> > head(rasch_pers_params$theta.table['Person Parameter'])
+> > ```
+> {: .solution}
+{: .challenge}
+
+Let's check the reliability and fit of the model:
+
+```{r, purl=FALSE}
+# Step 3: Reliability & fit
+
+# Likelihood ratio test
+eRm_rasch_LRT <- LRtest(erm_rasch)
+
+# Estimate Beta for TTs > and < Median
+plotGOF(eRm_rasch_LRT) 
+
+# Tests Beta diffs for >< Median
+Waldtest(erm_rasch) 
+
+summary(SepRel(rasch_pers_params))
+
+gofIRT(rasch_pers_params)
+```
+
+> ## Exercise
+> 
+> How can we make that goodness of fit plot more readable? (hint: `tlab`)
+>
+> > ## Solution
+> >
+> > ```{r, results=FALSE}
+> > plotGOF(eRm_rasch_LRT, tlab = 'none') 
+> > ```
+> {: .solution}
+{: .challenge}
+
+Let's see how well our people and our items fit the model. For lower stakes situations, [Linacre](https://www.rasch.org/rmt/rmt83b.htm) recommends that the infit/outfit measures be between 0.7 and 1.3.
+
+```{r, purl=FALSE}
+# Step 4: Item and Person Fit
+
+item_fit <- itemfit(rasch_pers_params) %>%
+  
+
+person_fit <- personfit(rasch_pers_params)
+
+# Step 5: Plots
+
+# plotICC(erm_rasch)
+# plotjointICC(erm_rasch, legend = FALSE)
+plotPImap(erm_rasch, sorted = TRUE)
+```
+
+## Linear Logistic Model
+
+Now, we will estimate the same parameters using the linear logistic model. Again, we should prep the data:
+
+```{r, purl=FALSE}
+# grab a slice of main dataset just to have column names
+qmat_prep <- irt_dat %>% 
+  select(5:44) %>% 
+  slice(1) %>% 
+  gather(item, correct, 1:40)
+
+###separate the item code into two basic parts
+qmat_prep <- separate(qmat_prep, item, sep = "_", fill = "right", into = c("section", "num", "skill", "type"), remove = FALSE)
+
+# select relevant columns
+qmat_prep <- select(qmat_prep, 1, 4:5)
+
+# create a dummy-coded matrix for the item types
+qmat <- as.matrix(cbind(psych::dummy.code(qmat_prep$skill), 
+                        psych::dummy.code(qmat_prep$type)))
+
+# remove the ci item type, which is redundant to rl skill
+qmat <- qmat[,-5]
+```
+
+Now that we have our q-matrix ready to go, we can run the linear logistic model, which uses conditional maximum likelihood (CML) estimation.
+
+```{r, purl=FALSE}
+# Step 2: Run LLTM
+erm_lltm <- LLTM(select(irt_dat, 5:44), qmat)
+```
+
+> ## Exercise
+> 
+> How can the item parameters be extracted from the model (hint: `summary`)
+>
+> > ## Solution
+> >
+> > ```{r, results=FALSE}
+> > # Note: LLTM uses easiness instead of difficulty (higher = easier)
+> > summary(erm_lltm) 
+> > ```
+> {: .solution}
+{: .challenge}
+
+Let's estimate and extract the person ability parameters
+
+```{r, purl=FALSE}
+# Step 3: Estimate person parameters
+lltm_pers_params <- person.parameter(erm_lltm)
+lltm_person_ability <- coef(lltm_pers_params) #person ability estimates in logits
+```
+
+We can estimate the reliability and fit of the model using the same commands that we used when we were working with the Rasch model.
+
+```{r, purl=FALSE}
+# Step 4: Reliability & fit
+summary(SepRel(lltm_pers_params))
+gofIRT(lltm_pers_params)
+```
+
+
+> ## Exercise
+> 
+> Can you estimate the item and person fit statistics (hint: see how we did it for the Rasch model)
+>
+> > ## Solution
+> >
+> > ```{r, results=FALSE}
+> > # Step 5: Item and Person Fit
+> > itemfit(lltm_pers_params)
+> > personfit(lltm_pers_params)
+> > ```
+> {: .solution}
+{: .challenge}
+
+Now, let's compare the results of the two models.
+
+```{r, purl=FALSE}
+# Step 6: Compare, Plot Rasch and LLTM item difficulties
+item_stats <- data_frame(items = rownames(erm_rasch$W), rasch = erm_rasch$betapar, lltm = erm_lltm$betapar)
+
+cor(item_stats$rasch, item_stats$lltm) #hmm, not bad!
+
+compare_items <- ggplot(item_stats, aes(x = lltm, y = rasch))+
+  geom_abline(slope = 1, intercept = 0)+
+  geom_point()+
+  labs(x = "LLTM Item Easiness", y = "Rasch Item Easiness")+
+  theme_bw()
+
+compare_items
+```
+
+{% include links.md %}

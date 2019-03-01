@@ -37,4 +37,11 @@ download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/da
               "data/adt_dataset.csv", mode = "wb")
 ```
 
+You can download our answers here.
+
+```{r, purl=FALSE, eval=FALSE}
+download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/scripts/day-1-problem-set-solution.R",
+              "scripts/day-1-problem-set-solution.R", mode = "wb")
+```
+
 {% include links.md %}

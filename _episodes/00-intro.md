@@ -5,19 +5,19 @@ title: "Before we Start"
 teaching: 25
 exercises: 15
 questions:
-- "How to find your way around RStudio?"
-- "How to interact with R?"
-- "How to manage your environment?"
-- "How to install packages?"
+  - "How to find your way around RStudio?"
+  - "How to interact with R?"
+  - "How to manage your environment?"
+  - "How to install packages?"
 objectives:
-- "Install latest version of R."
-- "Install latest version of RStudio."
-- "Navigate the RStudio GUI."
-- "Install additional packages using the packages tab."
-- "Install additional packages using R code."
+  - "Install latest version of R."
+  - "Install latest version of RStudio."
+  - "Navigate the RStudio GUI."
+  - "Install additional packages using the packages tab."
+  - "Install additional packages using R code."
 keypoints:
-- "Use RStudio to write and run R programs."
-- "Use `install.packages()` to install packages (libraries)."
+  - "Use RStudio to write and run R programs."
+  - "Use `install.packages()` to install packages (libraries)."
 source: Rmd
 ---
 
@@ -180,7 +180,7 @@ dir.create("fig_output")
 ~~~
 {: .language-r}
 
-The data for this workshop can all be found at its GitHub repository <https://github.com/gtlaflair/ltrc-2019>. You can download it directly to your computer by running the commands below in R or RStudio:
+The data for this workshop can all be found at its GitHub repository <https://github.com/gtlaflair/ltrc-2019/data>. You can download it directly to your computer by running the commands below in R or RStudio. The names in all of the datasets are fake; they were generated using the `charlatan` package from [rOpenSci](https://ropensci.org/).
 
 
 ~~~

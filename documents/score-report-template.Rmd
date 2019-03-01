@@ -1,0 +1,58 @@
+---
+output: 
+  pdf_document: default
+  html_notebook: default
+params:
+  total_mean: "total_mean"
+  list_mean: "list_mean"
+  read_mean: "read_mean"
+---
+
+\sffamily
+
+# \textsf{Score Report}
+
+Name: `r student$names`
+
+Your Scores:
+
+```{r echo=FALSE}
+
+library(tidyverse)
+library(cowplot)
+
+total_plot <- ggplot(student, aes(x = names, y = total))+
+  geom_bar(stat = "identity")+
+  geom_hline(yintercept = total_mean, color = "blue", linetype = "dashed")+
+  geom_label(label = paste0(student$total, "/65"), vjust = -.1)+
+  scale_y_continuous(limits = c(0, 65), breaks = c(0, 10, 20, 30, 40, 50, 60, 65))+
+  scale_x_discrete(labels = NULL)+
+  labs(x = "Total", y = "Score")+
+  theme_classic()+
+  theme(axis.ticks.x = element_blank())
+
+list_plot <- ggplot(student, aes(x = names, y = list_total))+
+  geom_bar(stat = "identity")+
+  geom_hline(yintercept = list_mean, color = "blue", linetype = "dashed")+
+  geom_label(label = paste0(student$list_total, "/30"), vjust = -.1)+
+  scale_y_continuous(limits = c(0, 65), breaks = c(0, 10, 20, 30))+
+  scale_x_discrete(labels = NULL)+
+  labs(x = "Listening", y = NULL)+
+  theme_classic()+
+  theme(axis.ticks.x = element_blank())
+
+read_plot <- ggplot(student, aes(x = names, y = read_total))+
+  geom_bar(stat = "identity")+
+  geom_hline(yintercept = read_mean, color = "blue", linetype = "dashed")+
+  geom_label(label = paste0(student$read_total, "/35"), vjust = -.1)+
+  scale_y_continuous(limits = c(0, 65), breaks = c(0, 10, 20, 30, 35))+
+  scale_x_discrete(labels = NULL)+
+  labs(x = "Reading", y = NULL)+
+  theme_classic()+
+  theme(axis.ticks.x = element_blank())
+
+plot_grid(total_plot, list_plot, read_plot, nrow = 1)
+
+```
+
+Note: The blue lines represent the average test score. You can compare your score to the average score.

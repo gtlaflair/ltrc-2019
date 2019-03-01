@@ -1,0 +1,180 @@
+---
+title: "Part 6: Advanced Analyses"
+teaching: 60
+exercises: 35
+questions: 
+  - "How can I carry out confirmatory factor analysis?"
+  - "How can I compare two models?"
+objectives: 
+  - "Prepare data for CFA."
+  - "Fit a one factor and two-factor model"
+  - "Compare the models"
+keypoints: 
+  - "`lavaan` and `semPlot` are two useful packages for CFA."
+source: Rmd
+---
+
+```{r, include=FALSE}
+source("../bin/chunk-options.R")
+knitr_fig_path("10-")
+source("../bin/download_data.R")
+```
+
+
+In order to carry out CFA on our data, we need to prep it by calculating subscores. Again, we will be using a number of functions from the `tidyverse`.
+
+
+```{r sem-prep, purl=FALSE, message=FALSE, error=FALSE, comment=FALSE, warning=FALSE}
+#load packages
+library(tidyverse)
+library(lavaan)
+library(semPlot)
+
+# read data
+sem_dat <- read_csv("data/placement_2.csv")
+
+# compute subscores
+sem_dat <- gather(sem_dat, item, correct, 5:69)
+sem_dat <- separate(sem_dat, item, into = c("number", "skill", "type"), 
+                    sep = "_", remove = FALSE)
+
+sum_scores <- group_by(sem_dat, ID, skill, type) %>% 
+  summarise(total = sum(correct, na.rm = TRUE)) %>%
+  unite(skill_type, 2:3, sep = "_") %>%
+  spread(skill_type, total)
+
+# some of the subscores are a bit limited in number of questions. combine
+sum_scores <- mutate(sum_scores, list_global = list_mi + list_prag,
+                        read_global = read_mi + read_inf + read_purp)
+```
+
+We will start by fitting a one-factor confirmatory model.
+
+```{r, purl=FALSE}
+
+# Confirmatory Factor Analyses ----
+# 1-factor model
+## define the model
+
+one <- '
+# latent variable definitions
+language =~ list_det + list_global + list_inf + read_det + read_voc +
+            read_torg + read_global'
+
+## fit the model
+fit_one <- cfa(one, data = sum_scores, missing = "fiml")
+
+## plot the model
+semPaths(fit_one, "std", layout = "tree", intercepts = FALSE, residuals = T, nDigits = 2, 
+         label.cex = 1, edge.label.cex=.95, fade = FALSE)
+```
+
+We can use `summary` to view the results, and we can check the diagnostics with `resid` and `modindices`.
+
+```{r, purl=FALSE}
+#view results
+lavaan::summary(fit_one, estimates = TRUE, standardized = TRUE, fit.measures = TRUE)
+
+#view diagnostics
+resid(fit_one, type="standardized")
+modindices(fit_one)
+```
+
+Now we will fit a two-factor model so that we can compare it to the one-factor model. We can use the same commands to examine the model.
+
+```{r, purl=FALSE}
+# 2-factor model
+## define the model
+two <- '
+# latent variable definitions
+listening =~ list_det + list_global + list_inf
+reading =~ read_det + read_voc + read_torg + read_global
+
+#covariances
+listening ~~ reading'
+
+##fit the model
+fit_two <- cfa(two, data = sum_scores, missing = "fiml")
+
+##plot the model
+semPaths(fit_two, "std", layout = "tree", intercepts = FALSE, residuals = TRUE, nDigits = 2, 
+         label.cex = 1, edge.label.cex=.95, fade = FALSE)
+```
+
+
+> ## Exercise
+> 
+> Explore the model summary and check the diagnostics.
+>
+> > ## Solution
+> >
+> > ```{r, results=FALSE}
+> > #view results
+> > lavaan::summary(fit_two, estimates = TRUE, standardized = TRUE, fit.measures = TRUE)
+> > 
+> > #view diagnostics
+> > resid(fit_two, type="standardized")
+> > modindices(fit_two)
+> > ```
+> {: .solution}
+{: .challenge}
+
+We can compare models with the `anova` function:
+
+```{r, purl=FALSE}
+#compare models
+
+anova(fit_one, fit_two)
+```
+
+Now we will fit a model to that controls for method effects:
+
+```{r, purl=FALSE}
+
+one_method <- '
+# latent variable definitions
+language =~ list_det + list_global + list_inf + read_det + read_voc +
+read_torg + read_global
+
+#listening method
+list_det ~~ list_global
+list_global ~~ list_inf
+
+#reading method
+read_det ~~ read_voc
+read_det ~~ read_torg
+read_det ~~ read_global
+read_torg ~~ read_global'
+
+## fit the model
+fit_one_method <- cfa(one_method, data = sum_scores, missing = "fiml")
+
+## plot the model
+semPaths(fit_one_method, "std", layout = "tree", intercepts = FALSE, residuals = TRUE, nDigits = 2, 
+         label.cex = 1, edge.label.cex=.95, fade = FALSE)
+
+# view results
+lavaan::summary(fit_one_method, estimates = TRUE, standardized = TRUE, fit.measures = TRUE)
+
+# view diagnostics
+resid(fit_one_method, type="standardized")
+modindices(fit_one_method)
+```
+
+> ## Exercise
+> 
+> Compare the `one_fit_method` model with the `fit_one` and `fit_two` models.
+>
+> > ## Solution
+> >
+> > ```{r, results=FALSE}
+> > ## compare models
+> > anova(fit_one, fit_one_method) #yes, accounting for method effects is important
+> > 
+> > anova(fit_two, fit_one_method) #inconclusive! 
+> > ```
+> {: .solution}
+{: .challenge}
+
+
+{% include links.md %}

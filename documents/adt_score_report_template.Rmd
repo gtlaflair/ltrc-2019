@@ -1,0 +1,25 @@
+---
+title: "ADT Score Report"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+Name: `r student$SubjID`
+
+Your Reading score is `r student$ReadingTotalScore`
+
+Your Academic Definitions score is `r student$ADT_total`
+
+How you did on each Academic Definition question:
+
+```{r echo=FALSE}
+items <- select(student, 1, 5:14)
+items <- gather(items, Question, Answer, 2:11)
+items$Answer[items$Answer == 0] <- "incorrect"
+items$Answer[items$Answer == 1] <- "correct"
+
+kable(select(items, 2:3))
+```
+
+Ask your teacher for more detailed feedback on your scores!
