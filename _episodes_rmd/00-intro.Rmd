@@ -177,11 +177,12 @@ because it will fail on someone else's computer.
 
 ### Downloading the data and getting set up
 
-For this workshop we will use the following folders in our working directory: **`data/`**, **`data_output/`**, **`fig_output/`**, and **`scripts`**. Let's write them all in lowercase to be consistent. We can create them using the RStudio interface by clicking on the "New Folder" button in the file pane (bottom right), or directly from R by typing at console:
+For this workshop we will use the following folders in our working directory: **`data/`**, **`data_output/`**, **`fig_output/`**, **`documents`**, and **`scripts`**. Let's write them all in lowercase to be consistent. We can create them using the RStudio interface by clicking on the "New Folder" button in the file pane (bottom right), or directly from R by typing at console:
 
 ```{r create-dirs, eval=FALSE}
 dir.create("data")
 dir.create("data_output")
+dir.create("documents")
 dir.create("fig_output")
 # dir.create("scripts") # we have already done this; doing it again would erase what we have created in the current folder
 ```
