@@ -332,9 +332,11 @@ variable called `admitted`. Then we can plot it.
 
 
 ~~~
-admit_bar <- test_1_raw %>%
+# we can add a new column to the dataset called `admitted`
+test_1_raw <- test_1_raw %>%
   mutate(admitted = case_when(raw_total > 50 ~ 'yes',
-                              raw_total <= 50 ~ 'no')) %>%
+                              raw_total <= 50 ~ 'no')) 
+admit_bar <- test_1_raw%>%
   ggplot(., aes(x = country, fill = admitted)) +
   geom_bar(position = 'dodge') # places the bars next to each other
 ~~~
@@ -449,11 +451,10 @@ What if we wanted to see histograms of the total scores on the test by country o
 ~~~
 total_score_hist <- test_1_raw %>%
   ggplot(., aes(x = raw_total)) +
-  geom_histogram() +
-  facet_wrap(~ country, labeller = title_case) +
+  geom_histogram(binwidth = 5) + # each bin is contains a range of scores within 5 points
+  facet_wrap(~ country, labeller = title_case, scales = 'fixed') +
   ylab('Counts') +
   xlab('Total Raw Test Score') +
-  xlim(0, 70) + # set the limits of the x-axis at 0 and 70 (min and max possible)
   ggtitle('Total Raw Test Score Distribution by Country')
 ~~~
 {: .language-r}
@@ -507,7 +508,7 @@ Make sure you have the `fig_output/` folder in your working directory.
 
 
 ~~~
-ggsave("fig_output/name_of_file.png", total_score_hist, width = 6, height = 4, units = 'in')
+ggsave("fig_output/name_of_file.png", total_score_hist, width = 6, height = 4, units = 'in', dpi = 600)
 ~~~
 {: .language-r}
 

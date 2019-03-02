@@ -19,7 +19,7 @@ source: Rmd
 
 
 
-In order to carry out CFA on our data, we need to prep it by calculating subscores. Again, we will be using a number of functions from the `tidyverse`.
+In order to carry out CFA on our data, we need to prep it by calculating subscores. Again, we will be using a number of functions from the `tidyverse`. We will also be using the lavaan package. This is a package for latent variable modeling. It's creators have a nice [website](http://lavaan.ugent.be/) with tutorials and resources.
 
 
 

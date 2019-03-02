@@ -150,7 +150,7 @@ Let's see how well our people and our items fit the model. For lower stakes situ
 ```{r, purl=FALSE}
 # Step 4: Item and Person Fit
 
-item_fit <- itemfit(rasch_pers_params) %>%
+item_fit <- itemfit(rasch_pers_params) 
   
 
 person_fit <- personfit(rasch_pers_params)
@@ -231,7 +231,6 @@ gofIRT(lltm_pers_params)
 > > ## Solution
 > >
 > > ```{r, results=FALSE}
-> > # Step 5: Item and Person Fit
 > > itemfit(lltm_pers_params)
 > > personfit(lltm_pers_params)
 > > ```

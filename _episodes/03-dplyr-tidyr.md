@@ -64,7 +64,7 @@ The package **`tidyr`** addresses the common problem of wanting to reshape your 
 To learn more about **`dplyr`** and **`tidyr`** after the workshop, you may want to check out this
 [handy data transformation with **`dplyr`** cheatsheet](https://github.com/rstudio/cheatsheets/raw/master/data-transformation.pdf) and this [one about **`tidyr`**](https://github.com/rstudio/cheatsheets/raw/master/data-import.pdf).
 
-To make sure, everyone will use the same dataset for this lesson, we'll read again the SAFI dataset that we downloaded earlier.
+To make sure, everyone will use the same dataset for this lesson, we'll read in one of the datasets that we downloaded earlier.
 
 
 ~~~
@@ -100,20 +100,20 @@ We're going to learn some of the most common **`dplyr`** functions:
 ### Mutate
 
 Frequently you'll want to create new columns based on the values in existing
-columns, for example to scale test scores or to create total scores. 
+columns, for example to scale test scores or to create total scores.
 For this we'll use `mutate()`.
 
-We currently have a dataframe with information for each test taker about country 
-of origin and how they responded (correct or incorrect) to each of the items on 
+We currently have a dataframe with information for each test taker about country
+of origin and how they responded (correct or incorrect) to each of the items on
 the test. We are missing total score columns. We know from inspecting our dataframe
-that our items are in columns `5:74`. The `.` in front of the column indices is a 
+that our items are in columns `5:74`. The `.` in front of the column indices is a
 placeholder for the dataframe `test_results_1`. It is similar to the command
 `test_results[,5:74]`.
 
 
 
 ~~~
-test_results_1 <- test_results_1 %>% 
+test_results_1 <- test_results_1 %>%
   mutate(raw_total = rowSums(.[5:74], na.rm = TRUE))
 
 # print the vector
@@ -137,7 +137,7 @@ Now that we have a `raw_total` column, we can create a column called `percent_to
 
 
 ~~~
-test_results_1 <- test_results_1 %>% 
+test_results_1 <- test_results_1 %>%
   mutate(percent_total = (raw_total / 70) * 100)
 
 # print the vector
@@ -384,7 +384,7 @@ to the `filter()` and `select()` functions any more.
 
 Some may find it helpful to read the pipe like the word "then". For instance,
 in the above example, we take the data frame `test_results_1`, *then* we `filter`
-for rows with `country == "china"`, *then* we `select` columns `country` and `raw_total`. 
+for rows with `country == "china"`, *then* we `select` columns `country` and `raw_total`.
 The **`dplyr`** functions by themselves are somewhat simple,
 but by combining them into linear workflows with the pipe, we can accomplish
 more complex manipulations of data frames.
@@ -431,18 +431,18 @@ Note that the final data frame (`test_results_china`) is the leftmost part of th
 >
 > > ## Solution
 > >
-> > 
+> >
 > > ~~~
 > > test_results_morocco <- test_results_1 %>%
 > >   filter(country == "morocco") %>%
 > >   select(country, percent_total)
-> > 
+> >
 > > test_results_morocco
 > > ~~~
 > > {: .language-r}
-> > 
-> > 
-> > 
+> >
+> >
+> >
 > > ~~~
 > > # A tibble: 20 x 2
 > >    country percent_total
@@ -472,7 +472,7 @@ Note that the final data frame (`test_results_china`) is the leftmost part of th
 > {: .solution}
 {: .challenge}
 
-You can also filter numerical data using other logical operators (such as `>`, `<=`). 
+You can also filter numerical data using other logical operators (such as `>`, `<=`).
 For example, if you wanted data from test takers who scored above a certain score.
 
 
@@ -510,8 +510,8 @@ We can use `mutate` to create total scores for the listening and reading tests.
 
 
 ~~~
-test_results_1 <- test_results_1 %>% 
-  mutate(list_raw_total = rowSums(select(., contains("_list_")), na.rm = TRUE)) 
+test_results_1 <- test_results_1 %>%
+  mutate(list_raw_total = rowSums(select(., contains("_list_")), na.rm = TRUE))
 
 test_results_1$list_raw_total
 ~~~
@@ -535,18 +535,18 @@ test_results_1$list_raw_total
 >
 > > ## Solution
 > >
-> > 
+> >
 > > ~~~
-> > test_results_1 <- test_results_1 %>% 
-> >  mutate(read_raw_total = rowSums(select(., contains("_read_")), na.rm = TRUE)) 
-> > 
+> > test_results_1 <- test_results_1 %>%
+> >  mutate(read_raw_total = rowSums(select(., contains("_read_")), na.rm = TRUE))
+> >
 > > test_results_1 %>%
 > >  select(., contains("raw"))
 > > ~~~
 > > {: .language-r}
-> > 
-> > 
-> > 
+> >
+> >
+> >
 > > ~~~
 > > # A tibble: 88 x 3
 > >    raw_total list_raw_total read_raw_total
@@ -614,7 +614,7 @@ For example, we may want an indicator of dispersion in addition to central tenda
 test_results_1 %>%
     group_by(country) %>%
     summarize(mean = mean(raw_total),
-              sd = sd(raw_total), 
+              sd = sd(raw_total),
               min = min(raw_total),
               max = max(raw_total))
 ~~~
@@ -640,7 +640,7 @@ It is sometimes useful to rearrange the result of a query to inspect the values.
 test_results_1 %>%
     group_by(country) %>%
     summarize(mean = mean(raw_total),
-              sd = sd(raw_total), 
+              sd = sd(raw_total),
               min = min(raw_total),
               max = max(raw_total)) %>%
   arrange(min)
@@ -666,7 +666,7 @@ To sort in descending order, we need to add the `desc()` function. If we want to
 test_results_1 %>%
     group_by(country) %>%
     summarize(mean = mean(raw_total),
-              sd = sd(raw_total), 
+              sd = sd(raw_total),
               min = min(raw_total),
               max = max(raw_total)) %>%
   arrange(desc(min))
@@ -761,7 +761,7 @@ test_results_1 %>%
 >
 > > ## Solution
 > >
-> > 
+> >
 > > ~~~
 > > test_results_1 %>%
 > >    summarise(n = n(),
@@ -771,9 +771,9 @@ test_results_1 %>%
 > >              range = (max(percent_total) - min(percent_total)) + 1)
 > > ~~~
 > > {: .language-r}
-> > 
-> > 
-> > 
+> >
+> >
+> >
 > > ~~~
 > > # A tibble: 1 x 5
 > >       n  mean median    sd range
@@ -788,7 +788,7 @@ test_results_1 %>%
 >
 > > ## Solution
 > >
-> > 
+> >
 > > ~~~
 > > test_results_1 %>%
 > >    group_by(country) %>%
@@ -799,9 +799,9 @@ test_results_1 %>%
 > >              range = (max(percent_total) - min(percent_total)) + 1)
 > > ~~~
 > > {: .language-r}
-> > 
-> > 
-> > 
+> >
+> >
+> >
 > > ~~~
 > > # A tibble: 3 x 6
 > >   country     n  mean median    sd range
@@ -828,19 +828,19 @@ Four characteristics of a tidy dataset include the following:
 Here we examine the fourth rule: Each type of observational unit forms a table.
 
 In `test_results_1`, each row contains the values of variables associated with each
-record (the unit), values such as correct or incorrect responses and total and part scores. 
-What if instead of comparing records, we wanted to look at differences in test takers grouped by 
+record (the unit), values such as correct or incorrect responses and total and part scores.
+What if instead of comparing records, we wanted to look at differences in test takers grouped by
 different countries of origin or across different subtests (i.e., listening and reading)?
 
 We'd need to create a new table where each row (the unit) is comprised
 of values of variables associated with each country of origin (e.g. for
-`country`). In practical terms this means the values of the countries of 
-origin in `country` would become the names of column variables and the cells 
+`country`). In practical terms this means the values of the countries of
+origin in `country` would become the names of column variables and the cells
 would contain `TRUE` or `FALSE`.
 
 Having created a new table, we can now explore the relationship within and
-between countries of origin. The key point here is that we are still following 
-a tidy data structure, but we have **reshaped** the data according to the observations 
+between countries of origin. The key point here is that we are still following
+a tidy data structure, but we have **reshaped** the data according to the observations
 of interest.
 
 The opposite transformation would be to transform column names into values of
@@ -917,9 +917,9 @@ results_wide <- test_results_1_long %>%
 ### Joining data
 
 Sometimes it is necessary to separate pieces of our data, perform operations on them
-and then join them back together with the original dataframe. For today, we will work 
+and then join them back together with the original dataframe. For today, we will work
 with `full_join` from `dplyr`. Our goal is to calculate the raw total scores for the
-reading and listening anchor sets in our data. We will leverage the `select` and 
+reading and listening anchor sets in our data. We will leverage the `select` and
 `rowSums` commands again:
 
 
@@ -945,29 +945,29 @@ test_results_1 <- full_join(x = test_results_1, y = list_1_an, by = 'ID')
 > ## Exercise
 >
 > Do the same operations as above to create a `read_an_raw` variable. Add it to the original dataframe. Then create
-> an new dataframe called `test_1_raw` that contains the `ID` and `country` variables and all columns with raw totals. 
+> an new dataframe called `test_1_raw` that contains the `ID` and `country` variables and all columns with raw totals.
 > (hint: there are a different number of items in the reading anchor test than in the listening anchor test.)
 >
 > > ## Solution
 > >
-> > 
+> >
 > > ~~~
 > > read_1_an <- test_results_1 %>%
 > >   select(., ID, contains("_read_"))%>%
 > >   select(., ID, contains("_an")) %>%
 > >   mutate(., read_an_raw = rowSums(.[2:12], na.rm = TRUE)) %>%
 > >   select(ID, read_an_raw)
-> > 
-> > test_results_1 <- full_join(test_results_1, read_1_an, by = 'ID') 
-> > 
+> >
+> > test_results_1 <- full_join(test_results_1, read_1_an, by = 'ID')
+> >
 > > test_1_raw <- select(test_results_1, ID, country, contains("raw"))
-> > 
+> >
 > > test_1_raw
 > > ~~~
 > > {: .language-r}
-> > 
-> > 
-> > 
+> >
+> >
+> >
 > > ~~~
 > > # A tibble: 88 x 7
 > >       ID country raw_total list_raw_total read_raw_total list_an_raw

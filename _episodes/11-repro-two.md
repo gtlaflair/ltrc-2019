@@ -15,35 +15,9 @@ source: Rmd
 
 
 
-For this portion of the workshop, we will work on creating a research report. There are a lot methods for doing this. One in particular involves using Frederik Aust's and Marius Barth's `papaja` package for creating APA manuscripts. This can be installed from GitHub: `devtools::install_github("crsh/papaja")`
+For this portion of the workshop, we will work on creating a research report. There are a lot methods for doing this that range from "quick and easy" to more complicated with more formatting uptions (e.g. the `papaja` package for creating APA manuscripts). We are going to work with the quick and easy method :).
 
-You can download a prepped .Rmd file for this into your documents folder using the function below.
+To start a .Rmd file go to File > New file > Rmarkdown. Save it in the documents folder. Let's also start a new .R file for this part (`file.create('scripts/research.R')`)
 
-
-~~~
-download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/documents/apa-template.Rmd",
-              "documents/apa-template.Rmd", mode = "wb")
-~~~
-{: .language-r}
-
-> ## Exercise
-> 
-> Add a facetted histogram plot of the subscore data to the document.
->
-> > ## Solution
-> >
-> > 
-> > ~~~
-> > sum_plot <- sum_scores %>% 
-> >   select(ID, list_det, list_global, list_inf, read_det,
-> >          read_voc, read_global, read_torg) %>%
-> >   gather(type, subscore, 2:8) %>%
-> >   ggplot(., aes(x = subscore)) +
-> >   geom_histogram() +
-> >   facet_wrap(~ type)
-> > ~~~
-> > {: .language-r}
-> {: .solution}
-{: .challenge}
 
 {% include links.md %}

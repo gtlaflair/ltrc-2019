@@ -124,6 +124,8 @@ Pane Layout).
   location for it. This will be your **working directory** for the rest of the
   day (e.g., `~/ltrc-workshop`)
 * Click on `Create project`
+* Create a new folder called `scripts`. In the console, type `dir.create(scripts)`, 
+You should see a folder in the bottom right window called scripts.
 * Create a new file where we will type our scripts. Go to File > New File > R
   script. Click the save icon on your toolbar and save your script as
   "`script.R`".
@@ -151,7 +153,8 @@ are some examples of suggested directories:
    different analyses or plotting.
 
 You may want additional directories or subdirectories depending on your project
-needs, but these should form the backbone of your working directory.
+needs, but these should form the backbone of your working directory. Use the `dir.create`
+function to create the other folders.
 
 ![Example of a working directory structure](../fig/working-directory-structure.png)
 
@@ -191,7 +194,7 @@ download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/da
 download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/data/placement_2.csv",
               "data/placement_2.csv", mode = "wb")
 
-download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/data/placement_2.csv",
+download.file("https://raw.githubusercontent.com/gtlaflair/ltrc-2019/gh-pages/data/integrated.csv",
               "data/integrated.csv", mode = "wb")
 ```
 
@@ -290,19 +293,16 @@ Because the install process accesses the CRAN repository, you
 will need an Internet connection to install packages.
 
 It is also possible to install packages from other repositories, as
-well as Github or the local file system, but we won’t be looking at these options in this lesson.
+well as Github or the local file system.
 
 ## Installing additional packages using R code
 
-If you were watching the console window when you started the
-install of ‘tidyverse’, you may have noticed that the line
+There are a few packages that we forgot to ask you to install before coming
+today. We will do that now. We will explain what these packages do as we use them.
 
 ```{r, eval = FALSE}
-install.packages("tidyverse")
+install.packages(c('here', 'skimr'))
 ```
 
-was written to the console before the start of the installation messages.
-
-You could also have installed the **`tidyverse`** packages by running this command directly at the R terminal.
 
 {% include links.md %}

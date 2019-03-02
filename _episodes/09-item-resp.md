@@ -384,23 +384,11 @@ Let's see how well our people and our items fit the model. For lower stakes situ
 ~~~
 # Step 4: Item and Person Fit
 
-item_fit <- itemfit(rasch_pers_params) %>%
+item_fit <- itemfit(rasch_pers_params) 
   
 
 person_fit <- personfit(rasch_pers_params)
-~~~
-{: .language-r}
 
-
-
-~~~
-Error in itemfit(rasch_pers_params) %>% person_fit <- personfit(rasch_pers_params): could not find function "%>%<-"
-~~~
-{: .error}
-
-
-
-~~~
 # Step 5: Plots
 
 # plotICC(erm_rasch)
@@ -518,7 +506,6 @@ Area Under ROC: 0.771
 > >
 > > 
 > > ~~~
-> > # Step 5: Item and Person Fit
 > > itemfit(lltm_pers_params)
 > > personfit(lltm_pers_params)
 > > ~~~
