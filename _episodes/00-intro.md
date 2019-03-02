@@ -120,7 +120,7 @@ Pane Layout).
   location for it. This will be your **working directory** for the rest of the
   day (e.g., `~/ltrc-workshop`)
 * Click on `Create project`
-* Create a new folder called `scripts`. In the console, type `dir.create(scripts)`, 
+* Create a new folder called `scripts`. In the console, type `dir.create(scripts)`,
 You should see a folder in the bottom right window called scripts.
 * Create a new file where we will type our scripts. Go to File > New File > R
   script. Click the save icon on your toolbar and save your script as
@@ -173,13 +173,14 @@ because it will fail on someone else's computer.
 
 ### Downloading the data and getting set up
 
-For this lesson we will use the following folders in our working directory: **`data/`**, **`data_output/`** and **`fig_output/`**. Let's write them all in lowercase to be consistent. We can create them using the RStudio interface by clicking on the "New Folder" button in the file pane (bottom right), or directly from R by typing at console:
+For this workshop we will use the following folders in our working directory: **`data/`**, **`data_output/`**, **`fig_output/`**, and **`scripts`**. Let's write them all in lowercase to be consistent. We can create them using the RStudio interface by clicking on the "New Folder" button in the file pane (bottom right), or directly from R by typing at console:
 
 
 ~~~
 dir.create("data")
 dir.create("data_output")
 dir.create("fig_output")
+# dir.create("scripts") # we have already done this; doing it again would erase what we have created in the current folder
 ~~~
 {: .language-r}
 
