@@ -884,7 +884,7 @@ Recall that you can use the `typeof()` function to find the type of your atomic 
 >     ```
 > 2. Use the function `median()` to calculate the median of the `total_scores` vector.
 >
-> 3. Use R to figure out how many households in the set use more than 2 rooms for sleeping.
+> 3. Use R to figure out how many people score above 70.
 >
 > > ## Solution
 > > 

@@ -659,7 +659,7 @@ test_results_1 %>%
 ~~~
 {: .output}
 
-To sort in descending order, we need to add the `desc()` function. If we want to sort the results by decreasing order of minimum household size:
+To sort in descending order, we need to add the `desc()` function. If we want to sort the results in decreasing order by `raw_total`:
 
 
 ~~~
