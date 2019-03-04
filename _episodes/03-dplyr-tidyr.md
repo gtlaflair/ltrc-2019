@@ -431,18 +431,18 @@ Note that the final data frame (`test_results_china`) is the leftmost part of th
 >
 > > ## Solution
 > >
-> >
+> > 
 > > ~~~
 > > test_results_morocco <- test_results_1 %>%
 > >   filter(country == "morocco") %>%
 > >   select(country, percent_total)
-> >
+> > 
 > > test_results_morocco
 > > ~~~
 > > {: .language-r}
-> >
-> >
-> >
+> > 
+> > 
+> > 
 > > ~~~
 > > # A tibble: 20 x 2
 > >    country percent_total
@@ -535,18 +535,18 @@ test_results_1$list_raw_total
 >
 > > ## Solution
 > >
-> >
+> > 
 > > ~~~
 > > test_results_1 <- test_results_1 %>%
 > >  mutate(read_raw_total = rowSums(select(., contains("_read_")), na.rm = TRUE))
-> >
+> > 
 > > test_results_1 %>%
 > >  select(., contains("raw"))
 > > ~~~
 > > {: .language-r}
-> >
-> >
-> >
+> > 
+> > 
+> > 
 > > ~~~
 > > # A tibble: 88 x 3
 > >    raw_total list_raw_total read_raw_total
@@ -761,7 +761,7 @@ test_results_1 %>%
 >
 > > ## Solution
 > >
-> >
+> > 
 > > ~~~
 > > test_results_1 %>%
 > >    summarise(n = n(),
@@ -771,9 +771,9 @@ test_results_1 %>%
 > >              range = (max(percent_total) - min(percent_total)) + 1)
 > > ~~~
 > > {: .language-r}
-> >
-> >
-> >
+> > 
+> > 
+> > 
 > > ~~~
 > > # A tibble: 1 x 5
 > >       n  mean median    sd range
@@ -788,7 +788,7 @@ test_results_1 %>%
 >
 > > ## Solution
 > >
-> >
+> > 
 > > ~~~
 > > test_results_1 %>%
 > >    group_by(country) %>%
@@ -799,9 +799,9 @@ test_results_1 %>%
 > >              range = (max(percent_total) - min(percent_total)) + 1)
 > > ~~~
 > > {: .language-r}
-> >
-> >
-> >
+> > 
+> > 
+> > 
 > > ~~~
 > > # A tibble: 3 x 6
 > >   country     n  mean median    sd range
@@ -950,24 +950,24 @@ test_results_1 <- full_join(x = test_results_1, y = list_1_an, by = 'ID')
 >
 > > ## Solution
 > >
-> >
+> > 
 > > ~~~
 > > read_1_an <- test_results_1 %>%
 > >   select(., ID, contains("_read_"))%>%
 > >   select(., ID, contains("_an")) %>%
 > >   mutate(., read_an_raw = rowSums(.[2:12], na.rm = TRUE)) %>%
 > >   select(ID, read_an_raw)
-> >
+> > 
 > > test_results_1 <- full_join(test_results_1, read_1_an, by = 'ID')
-> >
+> > 
 > > test_1_raw <- select(test_results_1, ID, country, contains("raw"))
-> >
+> > 
 > > test_1_raw
 > > ~~~
 > > {: .language-r}
-> >
-> >
-> >
+> > 
+> > 
+> > 
 > > ~~~
 > > # A tibble: 88 x 7
 > >       ID country raw_total list_raw_total read_raw_total list_an_raw

@@ -1,5 +1,5 @@
 ---
-title: "Part 6: Advanced Analyses"
+title: "Part 4: Advanced Analyses"
 teaching: 60
 exercises: 35
 questions: 

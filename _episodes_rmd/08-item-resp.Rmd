@@ -1,5 +1,5 @@
 ---
-title: "Part 5: Item Respose Modeling"
+title: "Part 4: Item Respose Modeling"
 teaching: 60
 exercises: 35
 questions:

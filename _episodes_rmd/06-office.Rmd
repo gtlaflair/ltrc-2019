@@ -1,5 +1,5 @@
 ---
-title: "Part 4: Office Hours"
+title: "Part 3: Office Hours"
 teaching: 60
 exercises: 35
 questions:
