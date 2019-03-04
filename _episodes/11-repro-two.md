@@ -5,19 +5,19 @@ title: "Part 7: Reproducible Reporting Part 2"
 teaching: 60
 exercises: 35
 questions: 
-  - "Can I use Rmarkdown to create APA styled research reports"
+  - "Can I use Rmarkdown to create research reports"
 objectives: 
-  - "Create an APA styled research report."
+  - "Create a research report."
 keypoints: 
-  - "`papaja` is a robust package for APA reports"
+  - "Rmarkdown provides a flexible framework for analysis and reporting."
 source: Rmd
 ---
 
 
 
-For this portion of the workshop, we will work on creating a research report. There are a lot methods for doing this that range from "quick and easy" to more complicated with more formatting uptions (e.g. the `papaja` package for creating APA manuscripts). We are going to work with the quick and easy method :).
+For this portion of the workshop, we will work on creating a research report. There are a lot methods for doing this that range from "quick and easy" to more complicated with more formatting options (e.g. the `papaja` package for creating APA manuscripts). We are going to work with the quick and easy method :).
 
-To start a .Rmd file go to File > New file > Rmarkdown. Save it in the documents folder. Let's also start a new .R file for this part (`file.create('scripts/research.R')`)
+To start a .Rmd file go to File > New file > Rmarkdown. Save it in the documents folder. Let's also start a new .R file for this part (`file.create('scripts/report.R')`)
 
 
 {% include links.md %}
