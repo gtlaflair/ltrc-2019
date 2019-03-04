@@ -1,6 +1,6 @@
 ---
 title: "Part 3: Reproducible Reporting"
-teaching: 60
+teaching: 40
 exercises: 35
 questions:
   - "How do I automate score reporting?"

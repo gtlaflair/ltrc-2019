@@ -3,7 +3,7 @@
 # Instead, please edit 02-starting-with-data.md in _episodes_rmd/
 title: "Part 1: Starting with Data"
 teaching: 40
-exercises: 30
+exercises: 20
 questions:
 - "What is a data.frame?"
 - "How can I read a complete csv file into R?"
@@ -109,7 +109,7 @@ test_results_1
 #   q37_read_det <dbl>, q38_read_det <dbl>, q39_read_mi <dbl>,
 #   q40_read_voc <dbl>, q41_read_voc <dbl>, q42_read_mi <dbl>,
 #   q43_read_det <dbl>, q44_read_mi <dbl>, q45_read_det <dbl>,
-#   q46_read_mi <dbl>, q47_read_trog <dbl>, q48_read_det <dbl>,
+#   q46_read_mi <dbl>, q47_read_torg <dbl>, q48_read_det <dbl>,
 #   q49_read_det <dbl>, q50_read_voc <dbl>, q51_read_torg <dbl>,
 #   q52_read_inf <dbl>, q53_read_torg <dbl>, q54_read_det <dbl>,
 #   q55_read_torg <dbl>, q56_read_purp <dbl>, q57_read_purp <dbl>,
@@ -353,7 +353,7 @@ test_results_1[3, ]
 #   q38_read_det <dbl>, q39_read_mi <dbl>, q40_read_voc <dbl>,
 #   q41_read_voc <dbl>, q42_read_mi <dbl>, q43_read_det <dbl>,
 #   q44_read_mi <dbl>, q45_read_det <dbl>, q46_read_mi <dbl>,
-#   q47_read_trog <dbl>, q48_read_det <dbl>, q49_read_det <dbl>,
+#   q47_read_torg <dbl>, q48_read_det <dbl>, q49_read_det <dbl>,
 #   q50_read_voc <dbl>, q51_read_torg <dbl>, q52_read_inf <dbl>,
 #   q53_read_torg <dbl>, q54_read_det <dbl>, q55_read_torg <dbl>,
 #   q56_read_purp <dbl>, q57_read_purp <dbl>, q58_read_mi <dbl>,
@@ -410,7 +410,7 @@ test_results_1[, -1]          # The whole data frame, except the first column
 #   q36_read_mi <dbl>, q37_read_det <dbl>, q38_read_det <dbl>,
 #   q39_read_mi <dbl>, q40_read_voc <dbl>, q41_read_voc <dbl>,
 #   q42_read_mi <dbl>, q43_read_det <dbl>, q44_read_mi <dbl>,
-#   q45_read_det <dbl>, q46_read_mi <dbl>, q47_read_trog <dbl>,
+#   q45_read_det <dbl>, q46_read_mi <dbl>, q47_read_torg <dbl>,
 #   q48_read_det <dbl>, q49_read_det <dbl>, q50_read_voc <dbl>,
 #   q51_read_torg <dbl>, q52_read_inf <dbl>, q53_read_torg <dbl>,
 #   q54_read_det <dbl>, q55_read_torg <dbl>, q56_read_purp <dbl>,
@@ -456,7 +456,7 @@ test_results_1[-c(7:88), ]   # Equivalent to head(test_results_1)
 #   q38_read_det <dbl>, q39_read_mi <dbl>, q40_read_voc <dbl>,
 #   q41_read_voc <dbl>, q42_read_mi <dbl>, q43_read_det <dbl>,
 #   q44_read_mi <dbl>, q45_read_det <dbl>, q46_read_mi <dbl>,
-#   q47_read_trog <dbl>, q48_read_det <dbl>, q49_read_det <dbl>,
+#   q47_read_torg <dbl>, q48_read_det <dbl>, q49_read_det <dbl>,
 #   q50_read_voc <dbl>, q51_read_torg <dbl>, q52_read_inf <dbl>,
 #   q53_read_torg <dbl>, q54_read_det <dbl>, q55_read_torg <dbl>,
 #   q56_read_purp <dbl>, q57_read_purp <dbl>, q58_read_mi <dbl>,
